@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{0E526E94-FFBD-45BB-BCAF-1F4E03E19D48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{29449852-1698-41B4-A5EE-32B982BDF5FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGaem2.Engine", "ProjectGaem2.Engine\ProjectGaem2.Engine.csproj", "{61F26995-7E36-4935-8390-AA5918D23DAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{DED1CD28-9335-47EE-BA79-A33A678DD624}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGaem2.Engine.Tests", "ProjectGaem2.Engine.Tests\ProjectGaem2.Engine.Tests.csproj", "{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61F26995-7E36-4935-8390-AA5918D23DAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61F26995-7E36-4935-8390-AA5918D23DAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61F26995-7E36-4935-8390-AA5918D23DAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61F26995-7E36-4935-8390-AA5918D23DAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{61F26995-7E36-4935-8390-AA5918D23DAD} = {0E526E94-FFBD-45BB-BCAF-1F4E03E19D48}
+		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF} = {29449852-1698-41B4-A5EE-32B982BDF5FA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6ABC4B38-AD29-42BD-AD31-BB7500487DDE}
+	EndGlobalSection
+EndGlobal
