@@ -4,7 +4,7 @@ using ProjectGaem2.Engine.Physics.RigidBody;
 
 namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
 {
-    public partial class OverlapTests
+    public class CircleOverlapTests
     {
         [Fact]
         public void CircleToCircle_SameCenter_ReturnTrue()

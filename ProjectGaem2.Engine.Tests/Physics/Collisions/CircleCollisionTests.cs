@@ -5,7 +5,7 @@ using ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions;
 
 namespace ProjectGaem2.Engine.Tests.Physics.Collisions
 {
-    public partial class CollisionTests
+    public class CircleCollisionTests
     {
         [Fact]
         public void CircleToCircle_Collide_ReturnTrue()

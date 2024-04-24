@@ -17,47 +17,55 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
         {
             manifold = new Manifold();
 
-            return first switch
+            switch (first)
             {
-                Circle
-                    => second switch
+                case Circle:
+                    switch (second)
                     {
-                        Circle
-                            => CircleToCircleManifold((Circle)first, (Circle)second, out manifold),
-                        Capsule2D
-                            => CircleToCapsule2DManifold(
+                        case Circle:
+                            return CircleToCircleManifold(
+                                (Circle)first,
+                                (Circle)second,
+                                out manifold
+                            );
+                        case Capsule2D:
+                            return CircleToCapsule2DManifold(
                                 (Circle)first,
                                 firstT,
                                 (Capsule2D)second,
                                 secondT,
                                 out manifold
-                            ),
-                        _ => throw new NotImplementedException(),
-                    },
-                Capsule2D
-                    => second switch
+                            );
+                        default:
+                            throw new NotImplementedException();
+                    }
+                case Capsule2D:
+                    switch (second)
                     {
-                        Circle
-                            => CircleToCapsule2DManifold(
+                        case Circle:
+                            var result = CircleToCapsule2DManifold(
                                 (Circle)second,
                                 firstT,
                                 (Capsule2D)first,
                                 secondT,
-                                out manifold,
-                                true
-                            ),
-                        Capsule2D
-                            => Capsule2DToCapsule2DManifold(
+                                out manifold
+                            );
+                            manifold.Invert();
+                            return result;
+                        case Capsule2D:
+                            return Capsule2DToCapsule2DManifold(
                                 (Capsule2D)first,
                                 firstT,
                                 (Capsule2D)second,
                                 secondT,
                                 out manifold
-                            ),
-                        _ => throw new NotImplementedException(),
-                    },
-                _ => throw new NotImplementedException()
-            };
+                            );
+                        default:
+                            throw new NotImplementedException();
+                    }
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public static bool Overlaps(Shape first, Transform firstT, Shape second, Transform secondT)
@@ -69,7 +77,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                     {
                         Circle => CircleToCircle((Circle)first, (Circle)second),
                         Capsule2D => CircleToCapsule2D((Circle)first, (Capsule2D)second),
-                        _ => false,
+                        _ => throw new NotImplementedException(),
                     },
                 Capsule2D
                     => second switch
@@ -82,9 +90,9 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                                 (Capsule2D)second,
                                 secondT
                             ),
-                        _ => false,
+                        _ => throw new NotImplementedException(),
                     },
-                _ => false
+                _ => throw new NotImplementedException()
             };
         }
 
@@ -141,7 +149,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                 out GJKOutput output,
                 out SimplexCache cache
             );
-            return output.Distance != 0;
+            return output.Distance < 10.0f * float.Epsilon;
         }
 
         public static bool CircleToCircleManifold(
@@ -177,8 +185,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
             Transform circleT,
             Capsule2D capsule,
             Transform capsuleT,
-            out Manifold manifold,
-            bool negate = false
+            out Manifold manifold
         )
         {
             manifold = new Manifold();
@@ -209,7 +216,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                 manifold.Count = 1;
                 manifold.Depths[0] = radiiSum - output.Distance;
                 manifold.ContactPoints[0] = output.PointB - normal * capsule.Radius;
-                manifold.Normal = negate ? -normal : normal;
+                manifold.Normal = normal;
 
                 return true;
             }
@@ -222,8 +229,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
             Transform firstT,
             Capsule2D second,
             Transform secondT,
-            out Manifold manifold,
-            bool negate = false
+            out Manifold manifold
         )
         {
             manifold = new Manifold();
@@ -234,7 +240,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                 firstT,
                 second,
                 secondT,
-                true,
+                false,
                 out GJKOutput output,
                 out SimplexCache cache
             );
@@ -254,7 +260,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                 manifold.Count = 1;
                 manifold.Depths[0] = radiiSum - output.Distance;
                 manifold.ContactPoints[0] = output.PointB - normal * second.Radius;
-                manifold.Normal = negate ? -normal : normal;
+                manifold.Normal = normal;
 
                 return true;
             }

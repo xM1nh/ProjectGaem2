@@ -597,18 +597,6 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
                 if (simplex.Count == 3)
                     break;
 
-                //FPE: This code was not used anyway.
-                // Compute closest point.
-                //Vector2 p = simplex.GetClosestPoint();
-                //float distanceSqr2 = p.LengthSquared();
-
-                // Ensure progress
-                //if (distanceSqr2 >= distanceSqr1)
-                //{
-                //break;
-                //}
-                //distanceSqr1 = distanceSqr2;
-
                 // Get search direction.
                 var d = simplex.GetSearchDirection();
 

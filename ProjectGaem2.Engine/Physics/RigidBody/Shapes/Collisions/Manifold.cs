@@ -14,5 +14,7 @@ namespace ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions
             Depths = new float[2];
             ContactPoints = new Vector2[2];
         }
+
+        public void Invert() => Vector2.Negate(ref Normal, out Normal);
     }
 }
