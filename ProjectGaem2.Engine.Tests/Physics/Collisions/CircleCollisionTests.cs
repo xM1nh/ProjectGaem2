@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics.RigidBody;
+using ProjectGaem2.Engine.Physics.RigidBody.Shapes;
 using ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions;
+using ProjectGaem2.Engine.Physics.Shapes;
 
 namespace ProjectGaem2.Engine.Tests.Physics.Collisions
 {
@@ -11,204 +12,314 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
         public void CircleToCircle_Collide_ReturnTrue()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 2 };
-            var second = new CircleBody() { Position = new Vector2(1, 0), Radius = 1 };
-            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), };
+            var first = new Circle(Vector2.Zero, 2);
+            var second = new Circle(new Vector2(1, 0), 1);
+            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), Count = 1 };
             expectedManifold.ContactPoints[0] = Vector2.Zero;
+            expectedManifold.Depths[0] = 2;
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCircleManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeTrue();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCircle_Tangent_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 1 };
-            var second = new CircleBody() { Position = new Vector2(2, 0), Radius = 1 };
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Circle(new Vector2(2, 0), 1);
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCircleManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCircle_NotCollide_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 1 };
-            var second = new CircleBody() { Position = new Vector2(3, 0), Radius = 1 };
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Circle(new Vector2(3, 0), 1);
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCircleManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToBox_CenterInsideCollide_ReturnsTrue()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(3, 2), 2);
+            var second = new Box2D() { Min = Vector2.Zero, Max = new Vector2(4, 4) };
+            var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
+            expectedManifold.ContactPoints[0] = new Vector2(4, 2);
+            expectedManifold.Depths[0] = 3;
+
+            //Act
+            var result = Collision.CircleToBox2DManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeTrue();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToBox_CenterOutsideCollide_ReturnsTrue()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(5, 2), 2);
+            var second = new Box2D() { Min = Vector2.Zero, Max = new Vector2(4, 4) };
+            var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
+            expectedManifold.ContactPoints[0] = new Vector2(4, 2);
+            expectedManifold.Depths[0] = 1;
+
+            //Act
+            var result = Collision.CircleToBox2DManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeTrue();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToBox_Tangent_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(5, 2), 1);
+            var second = new Box2D() { Min = Vector2.Zero, Max = new Vector2(4, 4) };
+            var expectedManifold = new Manifold();
+
+            //Act
+            var result = Collision.CircleToBox2DManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeFalse();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToBox_NotCollide_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(6, 2), 1);
+            var second = new Box2D() { Min = Vector2.Zero, Max = new Vector2(4, 4) };
+            var expectedManifold = new Manifold();
+
+            //Act
+            var result = Collision.CircleToBox2DManifold(
+                first,
+                second,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeFalse();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_TopBottomCollide_ReturnTrue()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 2 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(1, 0),
-                End = new Vector2(2, 0),
-                Radius = 1
-            };
-            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), };
+            var first = new Circle(Vector2.Zero, 2);
+            var second = new Capsule2D(new Vector2(1, 0), new Vector2(2, 0), 1);
+            var transfrom = Transform.Identity();
+            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), Count = 1 };
             expectedManifold.ContactPoints[0] = Vector2.Zero;
+            expectedManifold.Depths[0] = 2;
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeTrue();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_MiddleCollide_ReturnTrue()
         {
             //Arrange
-            var first = new CircleBody() { Position = new Vector2(0, 2), Radius = 1 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(1, 4),
-                End = new Vector2(1, 0),
-                Radius = 1
-            };
-            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), };
+            var first = new Circle(new Vector2(0, 2), 1);
+            var second = new Capsule2D(new Vector2(1, 4), new Vector2(1, 0), 1);
+            var transfrom = Transform.Identity();
+            var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), Count = 1 };
             expectedManifold.ContactPoints[0] = new Vector2(0, 2);
+            expectedManifold.Depths[0] = 1;
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeTrue();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_TopBottomTangent_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 1 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(2, 0),
-                End = new Vector2(3, 0),
-                Radius = 1
-            };
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Capsule2D(new Vector2(2, 0), new Vector2(3, 0), 1);
+            var transfrom = Transform.Identity();
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_MiddleTangent_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = new Vector2(0, 2), Radius = 1 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(2, 4),
-                End = new Vector2(2, 0),
-                Radius = 1
-            };
+            var first = new Circle(new Vector2(0, 2), 1);
+            var second = new Capsule2D(new Vector2(2, 4), new Vector2(2, 0), 1);
+            var transfrom = Transform.Identity();
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_TopBottomNotCollide_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = Vector2.Zero, Radius = 1 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(3, 0),
-                End = new Vector2(4, 0),
-                Radius = 1
-            };
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Capsule2D(new Vector2(3, 0), new Vector2(4, 0), 1);
+            var transfrom = Transform.Identity();
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
 
         [Fact]
         public void CircleToCapsule_MiddleNotCollide_ReturnFalse()
         {
             //Arrange
-            var first = new CircleBody() { Position = new Vector2(0, 2), Radius = 1 };
-            var second = new CapsuleBody()
-            {
-                Start = new Vector2(3, 4),
-                End = new Vector2(3, 0),
-                Radius = 1
-            };
+            var first = new Circle(new Vector2(0, 2), 1);
+            var second = new Capsule2D(new Vector2(3, 4), new Vector2(3, 0), 1);
+            var transfrom = Transform.Identity();
             var expectedManifold = new Manifold() { };
 
             //Act
-            var result = first.Collides(second, out Manifold actualManifold);
+            var result = Collision.CircleToCapsule2DManifold(
+                first,
+                transfrom,
+                second,
+                transfrom,
+                out Manifold actualManifold
+            );
 
             //Assert
             result.Should().BeFalse();
-            actualManifold.Normal.Should().Be(expectedManifold.Normal);
             actualManifold
-                .ContactPoints.Should()
-                .BeEquivalentTo(expectedManifold.ContactPoints, o => o.WithStrictOrdering());
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
         }
     }
 }

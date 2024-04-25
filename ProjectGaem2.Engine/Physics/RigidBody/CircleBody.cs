@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.Physics.RigidBody.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes;
 
 namespace ProjectGaem2.Engine.Physics.RigidBody
