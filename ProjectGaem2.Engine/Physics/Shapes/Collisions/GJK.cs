@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.DataStructures;
-using ProjectGaem2.Engine.Utils.Extensions;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
@@ -181,9 +181,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         internal void ReadCache(
             in SimplexCache cache,
             GJKProxy proxyA,
-            in Transform transformA,
+            Transform transformA,
             GJKProxy proxyB,
-            in Transform transformB
+            Transform transformB
         )
         {
             Debug.Assert(cache.Count <= 3);
@@ -197,8 +197,8 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                 v.IndexB = cache.IndexB[i];
                 var wALocal = proxyA.Vertices[v.IndexA];
                 var wBLocal = proxyB.Vertices[v.IndexB];
-                v.Wa = GJKHelper.Mul(in transformA, wALocal);
-                v.Wb = GJKHelper.Mul(in transformB, wBLocal);
+                v.Wa = GJKHelper.Mul(transformA, wALocal);
+                v.Wb = GJKHelper.Mul(transformB, wBLocal);
                 v.W = v.Wb - v.Wa;
                 v.A = 0.0f;
                 V[i] = v;
@@ -225,8 +225,8 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                 v.IndexB = 0;
                 var wALocal = proxyA.Vertices[0];
                 var wBLocal = proxyB.Vertices[0];
-                v.Wa = GJKHelper.Mul(in transformA, wALocal);
-                v.Wb = GJKHelper.Mul(in transformB, wBLocal);
+                v.Wa = GJKHelper.Mul(transformA, wALocal);
+                v.Wb = GJKHelper.Mul(transformB, wBLocal);
                 v.W = v.Wb - v.Wa;
                 v.A = 1.0f;
                 V[0] = v;
@@ -541,7 +541,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
             // Initialize the simplex.
             var simplex = new Simplex();
-            simplex.ReadCache(in cache, proxyA, in transformA, proxyB, in transformB);
+            simplex.ReadCache(in cache, proxyA, transformA, proxyB, transformB);
 
             // Get simplex vertices as an array.
             ref var vertices = ref simplex.V;

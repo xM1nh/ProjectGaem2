@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
@@ -14,7 +14,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 2);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(4, 0), 1);
-            var transfrom = Transform.Identity();
+            var transfrom = Transform.Identity;
 
             //Act
             var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
@@ -29,7 +29,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(2, 4), 1);
-            var transfrom = Transform.Identity();
+            var transfrom = Transform.Identity;
 
             //Act
             var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
@@ -44,7 +44,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(4, 0), 1);
-            var transfrom = Transform.Identity();
+            var transfrom = Transform.Identity;
 
             //Act
             var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
@@ -59,7 +59,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 2), new Vector2(4, 2), 1);
-            var transfrom = Transform.Identity();
+            var transfrom = Transform.Identity;
 
             //Act
             var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
@@ -74,7 +74,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(3, 0), new Vector2(4, 0), 1);
-            var transfrom = Transform.Identity();
+            var transfrom = Transform.Identity;
 
             //Act
             var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);

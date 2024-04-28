@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
@@ -32,18 +33,16 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             Transform secondT
         )
         {
-            //GJK.Compute(
-            //    first,
-            //    firstT,
-            //    second,
-            //    secondT,
-            //    true,
-            //    out GJKOutput output,
-            //    out SimplexCache cache
-            //);
-            //return output.Distance < 10f * float.Epsilon;
-
-            throw new NotImplementedException();
+            GJK.Compute(
+                first,
+                firstT,
+                second,
+                secondT,
+                true,
+                out GJKOutput output,
+                out SimplexCache cache
+            );
+            return output.Distance < 10f * Settings.Epsilon;
         }
 
         public static bool Capsule2DToCapsule2DManifold(

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
@@ -79,50 +80,48 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         /// Multiply two rotations: q * r
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rot Mul(in Rot q, in Rot r)
+        public static Rotation Mul(in Rotation q, in Rotation r)
         {
             // [qc -qs] * [rc -rs] = [qc*rc-qs*rs -qc*rs-qs*rc]
             // [qs  qc]   [rs  rc]   [qs*rc+qc*rs -qs*rs+qc*rc]
             // s = qs * rc + qc * rs
             // c = qc * rc - qs * rs
-            return new Rot(q.Sin * r.Cos + q.Cos * r.Sin, q.Cos * r.Cos - q.Sin * r.Sin);
+            return new Rotation(q.Sin * r.Cos + q.Cos * r.Sin, q.Cos * r.Cos - q.Sin * r.Sin);
         }
 
         /// Transpose multiply two rotations: qT * r
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Rot MulT(in Rot q, in Rot r)
+        public static Rotation MulT(in Rotation q, in Rotation r)
         {
             // [ qc qs] * [rc -rs] = [qc*rc+qs*rs -qc*rs+qs*rc]
             // [-qs qc]   [rs  rc]   [-qs*rc+qc*rs qs*rs+qc*rc]
             // s = qc * rs - qs * rc
             // c = qc * rc + qs * rs
-            return new Rot(q.Cos * r.Sin - q.Sin * r.Cos, q.Cos * r.Cos + q.Sin * r.Sin);
+            return new Rotation(q.Cos * r.Sin - q.Sin * r.Cos, q.Cos * r.Cos + q.Sin * r.Sin);
         }
 
-        /// Rotate a vector
+        /// Rotationate a vector
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Mul(in Rot q, in Vector2 v)
+        public static Vector2 Mul(in Rotation q, in Vector2 v)
         {
             return new Vector2(q.Cos * v.X - q.Sin * v.Y, q.Sin * v.X + q.Cos * v.Y);
         }
 
         /// Inverse rotate a vector
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 MulT(in Rot q, in Vector2 v)
+        public static Vector2 MulT(in Rotation q, in Vector2 v)
         {
             return new Vector2(q.Cos * v.X + q.Sin * v.Y, -q.Sin * v.X + q.Cos * v.Y);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 Mul(in Transform T, in Vector2 v)
+        public static Vector2 Mul(Transform T, in Vector2 v)
         {
             var x = T.Rotation.Cos * v.X - T.Rotation.Sin * v.Y + T.Position.X;
             var y = T.Rotation.Sin * v.X + T.Rotation.Cos * v.Y + T.Position.Y;
             return new Vector2(x, y);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector2 MulT(in Transform T, in Vector2 v)
+        public static Vector2 MulT(Transform T, in Vector2 v)
         {
             var px = v.X - T.Position.X;
             var py = v.Y - T.Position.Y;
@@ -132,10 +131,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             );
         }
 
-        // v2 = A.Rotation.Rot(B.Rotation.Rot(v1) + B.p) + A.p
-        //    = (A.q * B.q).Rot(v1) + A.Rotation.Rot(B.p) + A.p
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Transform Mul(in Transform A, in Transform B)
+        // v2 = A.Rotation.Rotation(B.Rotation.Rotation(v1) + B.p) + A.p
+        //    = (A.q * B.q).Rotation(v1) + A.Rotation.Rotation(B.p) + A.p
+        public static Transform Mul(Transform A, Transform B)
         {
             return new Transform(
                 Mul(A.Rotation, B.Position) + A.Position,
@@ -145,8 +143,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         // v2 = A.q' * (B.q * v1 + B.p - A.p)
         //    = A.q' * B.q * v1 + A.q' * (B.p - A.p)
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Transform MulT(in Transform A, in Transform B)
+        public static Transform MulT(Transform A, Transform B)
         {
             return new Transform(
                 MulT(A.Rotation, B.Position - A.Position),

@@ -1,4 +1,5 @@
 ﻿using System;
+using ProjectGaem2.Engine.ECS.Components;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {

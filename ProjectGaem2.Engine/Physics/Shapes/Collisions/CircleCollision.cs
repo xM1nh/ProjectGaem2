@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
 using ProjectGaem2.Engine.Utils.Math;
 
@@ -254,7 +255,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                 var transform = polygonT;
                 var separation = float.MinValue;
                 var index = -1;
-                var local = GJKHelper.Mul(in transform, circle.Center);
+                var local = GJKHelper.Mul(transform, circle.Center);
 
                 for (var i = 0; i < polygon.Vertices.Count; i++)
                 {
@@ -276,9 +277,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                 var p = h2.Project(local);
 
                 manifold.Count = 1;
-                manifold.ContactPoints[0] = GJKHelper.Mul(in transform, p);
+                manifold.ContactPoints[0] = GJKHelper.Mul(transform, p);
                 manifold.Depths[0] = circle.Radius - separation;
-                manifold.Normal = transform.Rotation.MulV(polygon.Normals[index]) * -1.0f;
+                manifold.Normal = GJKHelper.Mul(transform.Rotation, polygon.Normals[index]) * -1.0f;
 
                 return true;
             }
