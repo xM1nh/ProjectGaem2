@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics.RigidBody.Shapes;
-using ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions;
+using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
+using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
 namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
 {
@@ -65,7 +65,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToBox_CenterInsideCollide_ReturnsTrue()
+        public void CircleToBox_CenterInsideOverlap_ReturnsTrue()
         {
             //Arrange
             var first = new Circle(new Vector2(3, 2), 2);
@@ -79,7 +79,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToBox_CenterOutsideCollide_ReturnsTrue()
+        public void CircleToBox_CenterOutsideOverlap_ReturnsTrue()
         {
             //Arrange
             var first = new Circle(new Vector2(5, 2), 2);
@@ -107,7 +107,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToBox_NotCollide_ReturnsFalse()
+        public void CircleToBox_NotOverlap_ReturnsFalse()
         {
             //Arrange
             var first = new Circle(new Vector2(6, 2), 1);
@@ -121,7 +121,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToCapsule_TopBottomCollide_ReturnTrue()
+        public void CircleToCapsule_TopBottomOverlap_ReturnTrue()
         {
             //Arrange
             var first = new Circle(Vector2.Zero, 2);
@@ -135,7 +135,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToCapsule_MiddleCollide_ReturnTrue()
+        public void CircleToCapsule_MiddleOverlap_ReturnTrue()
         {
             //Arrange
             var first = new Circle(new Vector2(0, 2), 1);
@@ -177,7 +177,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToCapsule_TopBottomNotCollide_ReturnFalse()
+        public void CircleToCapsule_TopBottomNotOverlap_ReturnFalse()
         {
             //Arrange
             var first = new Circle(Vector2.Zero, 1);
@@ -191,7 +191,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
         }
 
         [Fact]
-        public void CircleToCapsule_MiddleNotCollide_ReturnFalse()
+        public void CircleToCapsule_MiddleNotOverlap_ReturnFalse()
         {
             //Arrange
             var first = new Circle(new Vector2(0, 2), 1);
@@ -199,6 +199,57 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
 
             //Act
             var result = Collision.CircleToCapsule2D(first, second);
+
+            //Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void CircleToPolygon_Overlap_ReturnsTrue()
+        {
+            //Arrange
+            var first = new Circle(Vector2.Zero, 2);
+            var second = new Polygon();
+            List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+
+            //Act
+            var result = Collision.CircleToPolygon(first, transform, second, transform);
+
+            //Assert
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public void CircleToPolygon_Tangent_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Polygon();
+            List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+
+            //Act
+            var result = Collision.CircleToPolygon(first, transform, second, transform);
+
+            //Assert
+            result.Should().BeFalse();
+        }
+
+        [Fact]
+        public void CircleToPolygon_NotOverlap_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(0, 2), 1);
+            var second = new Polygon();
+            List<Vector2> vertices = [new Vector2(2, 2), new Vector2(2, 3), new Vector2(3, 2)];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+
+            //Act
+            var result = Collision.CircleToPolygon(first, transform, second, transform);
 
             //Assert
             result.Should().BeFalse();

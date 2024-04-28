@@ -7,11 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{0E526E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{29449852-1698-41B4-A5EE-32B982BDF5FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGaem2.Engine", "ProjectGaem2.Engine\ProjectGaem2.Engine.csproj", "{61F26995-7E36-4935-8390-AA5918D23DAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectGaem2.Engine", "ProjectGaem2.Engine\ProjectGaem2.Engine.csproj", "{61F26995-7E36-4935-8390-AA5918D23DAD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Games", "Games", "{DED1CD28-9335-47EE-BA79-A33A678DD624}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGaem2.Engine.Tests", "ProjectGaem2.Engine.Tests\ProjectGaem2.Engine.Tests.csproj", "{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectGaem2.Engine.Tests", "ProjectGaem2.Engine.Tests\ProjectGaem2.Engine.Tests.csproj", "{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectGaem2.Suika", "ProjectGaem2.Suika\ProjectGaem2.Suika.csproj", "{86697B6D-32E1-4CC5-A60D-52EF98033C69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86697B6D-32E1-4CC5-A60D-52EF98033C69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86697B6D-32E1-4CC5-A60D-52EF98033C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86697B6D-32E1-4CC5-A60D-52EF98033C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86697B6D-32E1-4CC5-A60D-52EF98033C69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -34,6 +40,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{61F26995-7E36-4935-8390-AA5918D23DAD} = {0E526E94-FFBD-45BB-BCAF-1F4E03E19D48}
 		{DD8C6A5A-FB75-4479-B3C2-4E49643C00CF} = {29449852-1698-41B4-A5EE-32B982BDF5FA}
+		{86697B6D-32E1-4CC5-A60D-52EF98033C69} = {DED1CD28-9335-47EE-BA79-A33A678DD624}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6ABC4B38-AD29-42BD-AD31-BB7500487DDE}

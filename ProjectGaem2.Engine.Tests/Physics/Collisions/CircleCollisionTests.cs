@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics.RigidBody.Shapes;
-using ProjectGaem2.Engine.Physics.RigidBody.Shapes.Collisions;
+using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
+using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
 namespace ProjectGaem2.Engine.Tests.Physics.Collisions
 {
@@ -312,6 +312,130 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
                 transfrom,
                 second,
                 transfrom,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeFalse();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToPolygon_CenterInsideCollide_ReturnsTrue()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(3, 2), 2);
+            var second = new Polygon();
+            List<Vector2> vertices =
+            [
+                Vector2.Zero,
+                new Vector2(4, 0),
+                new Vector2(4, 4),
+                new Vector2(0, 4)
+            ];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+            var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
+            expectedManifold.ContactPoints[0] = new Vector2(4, 2);
+            expectedManifold.Depths[0] = 3;
+
+            //Act
+            var result = Collision.CircleToPolygonManifold(
+                first,
+                transform,
+                second,
+                transform,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeTrue();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToPolygon_CenterOutsideCollide_ReturnsTrue()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(5, 2), 2);
+            var second = new Polygon();
+            List<Vector2> vertices =
+            [
+                Vector2.Zero,
+                new Vector2(0, 4),
+                new Vector2(4, 4),
+                new Vector2(4, 0)
+            ];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+            var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
+            expectedManifold.ContactPoints[0] = new Vector2(4, 2);
+            expectedManifold.Depths[0] = 1;
+
+            //Act
+            var result = Collision.CircleToPolygonManifold(
+                first,
+                transform,
+                second,
+                transform,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeTrue();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToPolygon_Tangent_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(Vector2.Zero, 1);
+            var second = new Polygon();
+            List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+            var expectedManifold = new Manifold() { };
+
+            //Act
+            var result = Collision.CircleToPolygonManifold(
+                first,
+                transform,
+                second,
+                transform,
+                out Manifold actualManifold
+            );
+
+            //Assert
+            result.Should().BeFalse();
+            actualManifold
+                .Should()
+                .BeEquivalentTo(expectedManifold, o => o.ComparingByMembers<Manifold>());
+        }
+
+        [Fact]
+        public void CircleToPolygon_NotCollide_ReturnsFalse()
+        {
+            //Arrange
+            var first = new Circle(new Vector2(0, 2), 1);
+            var second = new Polygon();
+            List<Vector2> vertices = [new Vector2(2, 2), new Vector2(2, 3), new Vector2(3, 2)];
+            second.SetVertices(vertices);
+            var transform = Transform.Identity();
+            var expectedManifold = new Manifold() { };
+
+            //Act
+            var result = Collision.CircleToPolygonManifold(
+                first,
+                transform,
+                second,
+                transform,
                 out Manifold actualManifold
             );
 
