@@ -6,5 +6,7 @@ namespace ProjectGaem2.Engine.ECS.Components
     {
         public Entity Entity { get; set; }
         public bool Enable { get; set; }
+
+        public virtual void OnAddedToEntity() { }
     }
 }

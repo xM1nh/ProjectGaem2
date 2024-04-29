@@ -18,6 +18,11 @@ namespace ProjectGaem2.Engine.Physics.Shapes
             get => _normals;
         }
 
+        public override void CalculateBounds()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void SetVertices(List<Vector2> vertices)
         {
             _vertices = vertices;

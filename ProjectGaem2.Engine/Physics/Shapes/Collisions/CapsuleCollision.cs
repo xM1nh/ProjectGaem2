@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
+using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
@@ -27,21 +28,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         }
 
         public static bool Capsule2DToPolygon(
-            Capsule2D first,
-            Transform firstT,
-            Polygon second,
-            Transform secondT
+            Capsule2D cap,
+            Transform capT,
+            Polygon poly,
+            Transform polyT
         )
         {
-            GJK.Compute(
-                first,
-                firstT,
-                second,
-                secondT,
-                true,
-                out GJKOutput output,
-                out SimplexCache cache
-            );
+            GJK.Compute(cap, capT, poly, polyT, true, out GJKOutput output, out SimplexCache cache);
             return output.Distance < 10f * Settings.Epsilon;
         }
 
@@ -90,14 +83,55 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         }
 
         public static bool Capsule2DToPolygonManifold(
-            Capsule2D first,
-            Transform firstT,
-            Polygon second,
-            Transform secondT,
+            Capsule2D cap,
+            Transform capT,
+            Polygon poly,
+            Transform polyT,
             out Manifold manifold
         )
         {
             throw new NotImplementedException();
         }
+
+        //static void AntinormalFace(
+        //    Capsule2D cap,
+        //    Polygon poly,
+        //    Transform polyT,
+        //    out int index,
+        //    out Vector2 normal
+        //)
+        //{
+        //    index = -1;
+        //    normal = Vector2.Zero;
+        //    float sep = float.MinValue;
+
+        //    for (int i = 0; i < poly.Vertices.Count; i++)
+        //    {
+        //        var h = HalfSpace.At(poly, i).MulT(polyT);
+        //        var n0 = Vector2.Negate(h.Normal);
+        //        var s = CapsuleSupport(cap, n0);
+        //        var d = h.DistanceFromPoint(s);
+
+        //        if (d > sep)
+        //        {
+        //            sep = d;
+        //            index = i;
+        //            normal = n0;
+        //        }
+        //    }
+        //}
+
+        //static Vector2 CapsuleSupport(Capsule2D cap, Vector2 dir)
+        //{
+        //    var da = Vector2.Dot(cap.Start, dir);
+        //    var db = Vector2.Dot(cap.End, dir);
+
+        //    if (da > db)
+        //    {
+        //        return cap.Start + dir * cap.Radius;
+        //    }
+
+        //    return cap.End - dir * cap.Radius;
+        //}
     }
 }

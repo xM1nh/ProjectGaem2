@@ -1,4 +1,5 @@
-﻿using ProjectGaem2.Engine.Utils.Math;
+﻿using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.Physics.Shapes
 {
@@ -6,6 +7,6 @@ namespace ProjectGaem2.Engine.Physics.Shapes
     {
         public RectangleF Bounds;
 
-        public virtual void CalculateBounds() { }
+        public abstract void CalculateBounds();
     }
 }

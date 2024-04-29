@@ -1,13 +1,15 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Entities;
 
 namespace ProjectGaem2.Engine.ECS.Components
 {
-    public class Transform : Component
+    public class Transform
     {
+        public Entity Entity { get; set; }
         public Vector2 Position { get; set; }
         public Rotation Rotation { get; set; }
-        public Vector2 Scale { get; set; }
+        public Vector2 Scale { get; set; } = Vector2.One;
 
         public static Transform Identity => new(Vector2.Zero, Rotation.Identity);
 

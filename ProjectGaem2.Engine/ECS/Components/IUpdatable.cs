@@ -1,10 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace ProjectGaem2.Suika.Components
+namespace ProjectGaem2.Engine.ECS.Components
 {
     public interface IUpdatable
     {
         bool Enable { get; set; }
-        void Update();
+        void Update(GameTime gameTime);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Physics.Shapes;
+using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
 namespace ProjectGaem2.Engine.Utils.Math
 {
@@ -31,6 +33,15 @@ namespace ProjectGaem2.Engine.Utils.Math
         public Vector2 Project(Vector2 p)
         {
             return p - Normal * DistanceFromPoint(p);
+        }
+
+        public HalfSpace MulT(Transform t)
+        {
+            var result = new HalfSpace();
+            result.Normal = GJKHelper.Mul(t.Rotation, Normal);
+            result.Distance = Vector2.Dot(GJKHelper.Mul(t, Origin()), result.Normal);
+
+            return result;
         }
     }
 }
