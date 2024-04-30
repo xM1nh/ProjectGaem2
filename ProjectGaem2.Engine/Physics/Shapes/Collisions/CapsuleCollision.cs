@@ -1,8 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
-using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
@@ -10,9 +8,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool Capsule2DToCapsule2D(
             Capsule2D first,
-            Transform firstT,
+            PhysicsInternalTransform firstT,
             Capsule2D second,
-            Transform secondT
+            PhysicsInternalTransform secondT
         )
         {
             GJK.Compute(
@@ -29,9 +27,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToPolygon(
             Capsule2D cap,
-            Transform capT,
+            PhysicsInternalTransform capT,
             Polygon poly,
-            Transform polyT
+            PhysicsInternalTransform polyT
         )
         {
             GJK.Compute(cap, capT, poly, polyT, true, out GJKOutput output, out SimplexCache cache);
@@ -40,9 +38,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToCapsule2DManifold(
             Capsule2D first,
-            Transform firstT,
+            PhysicsInternalTransform firstT,
             Capsule2D second,
-            Transform secondT,
+            PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {
@@ -84,9 +82,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToPolygonManifold(
             Capsule2D cap,
-            Transform capT,
+            PhysicsInternalTransform capT,
             Polygon poly,
-            Transform polyT,
+            PhysicsInternalTransform polyT,
             out Manifold manifold
         )
         {
@@ -96,7 +94,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         //static void AntinormalFace(
         //    Capsule2D cap,
         //    Polygon poly,
-        //    Transform polyT,
+        //    PhysicsInternalTransform polyT,
         //    out int index,
         //    out Vector2 normal
         //)

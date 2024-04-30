@@ -49,11 +49,11 @@ namespace ProjectGaem2.Engine.Physics
 
         public void Register(Collider collider)
         {
-            var bound = collider.Bounds;
-            collider.RegisteredBounds = bound;
+            var bounds = collider.Bounds;
+            collider.RegisteredBounds = bounds;
 
-            var p1 = CellCoords(bound.X, bound.Y);
-            var p2 = CellCoords(bound.Right, bound.Bottom);
+            var p1 = CellCoords(bounds.X, bounds.Y);
+            var p2 = CellCoords(bounds.Right, bounds.Bottom);
 
             if (!GridBounds.Contains(p1))
             {
@@ -77,9 +77,9 @@ namespace ProjectGaem2.Engine.Physics
 
         public void Unregister(Collider collider)
         {
-            var bound = collider.RegisteredBounds;
-            var p1 = CellCoords(bound.X, bound.Y);
-            var p2 = CellCoords(bound.Right, bound.Bottom);
+            var bounds = collider.RegisteredBounds;
+            var p1 = CellCoords(bounds.X, bounds.Y);
+            var p2 = CellCoords(bounds.Right, bounds.Bottom);
 
             for (var x = p1.X; x <= p2.X; x++)
             {
@@ -95,12 +95,12 @@ namespace ProjectGaem2.Engine.Physics
 
         public HashSet<Collider> GetAll() => _cellStore.GetAll();
 
-        public HashSet<Collider> Aabb(ref RectangleF bound, Collider excludeCollider)
+        public HashSet<Collider> Aabb(in RectangleF bounds, Collider excludeCollider)
         {
             _aabbBufferHashSet.Clear();
 
-            var p1 = CellCoords(bound.X, bound.Y);
-            var p2 = CellCoords(bound.Right, bound.Bottom);
+            var p1 = CellCoords(bounds.X, bounds.Y);
+            var p2 = CellCoords(bounds.Right, bounds.Bottom);
 
             for (var x = p1.X; x <= p2.X; x++)
             {
@@ -121,7 +121,7 @@ namespace ProjectGaem2.Engine.Physics
                             continue;
                         }
 
-                        if (bound.Intersects(collider.Bounds))
+                        if (bounds.Intersects(collider.Bounds))
                         {
                             _aabbBufferHashSet.Add(collider);
                         }

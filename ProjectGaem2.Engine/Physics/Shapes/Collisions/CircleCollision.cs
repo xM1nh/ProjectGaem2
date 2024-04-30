@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
 using ProjectGaem2.Engine.Utils.Math;
 
@@ -54,9 +53,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool CircleToPolygon(
             Circle circle,
-            Transform circleT,
+            PhysicsInternalTransform circleT,
             Polygon polygon,
-            Transform polygonT
+            PhysicsInternalTransform polygonT
         )
         {
             GJK.Compute(
@@ -167,9 +166,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool CircleToCapsule2DManifold(
             Circle circle,
-            Transform circleT,
+            PhysicsInternalTransform circleT,
             Capsule2D capsule,
-            Transform capsuleT,
+            PhysicsInternalTransform capsuleT,
             out Manifold manifold
         )
         {
@@ -211,9 +210,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool CircleToPolygonManifold(
             Circle circle,
-            Transform circleT,
+            PhysicsInternalTransform circleT,
             Polygon polygon,
-            Transform polygonT,
+            PhysicsInternalTransform polygonT,
             out Manifold manifold
         )
         {

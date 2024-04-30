@@ -1,88 +1,301 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using ProjectGaem2.Engine.ECS.Entities;
+using ProjectGaem2.Engine.Utils.Extensions;
+using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.ECS.Components
 {
-    public class Transform
+    public class Transform(Entity entity)
     {
-        public Entity Entity { get; set; }
-        public Vector2 Position { get; set; }
-        public Rotation Rotation { get; set; }
-        public Vector2 Scale { get; set; } = Vector2.One;
+        private Transform _parent;
 
-        public static Transform Identity => new(Vector2.Zero, Rotation.Identity);
+        private Vector2 _position;
+        private float _rotation;
+        private Vector2 _scale = Vector2.One;
+        private Vector2 _localPosition;
+        private float _localRotation;
+        private Vector2 _localScale = Vector2.One;
 
-        public Transform() { }
+        private bool _dirty;
+        private bool _localDirty;
 
-        public Transform(Vector2 position, Rotation rot)
+        private bool _positionDirty;
+        private bool _localPositionDirty;
+        private bool _localRotationDirty;
+        private bool _localScaleDirty;
+
+        private Matrix2 _localTransform;
+        private Matrix2 _worldTransform = Matrix2.Identity;
+        private Matrix2 _worldToLocalTransform = Matrix2.Identity;
+
+        private bool _worldToLocalDirty;
+
+        private Matrix2 _rotationMatrix;
+        private Matrix2 _translationMatrix;
+        private Matrix2 _scaleMatrix;
+
+        private List<Transform> _children;
+
+        public Transform Parent
         {
-            Position = position;
-            Rotation = rot;
-        }
-
-        public void SetIdentity()
-        {
-            Position = Vector2.Zero;
-            Rotation.SetIdentity();
-        }
-    }
-
-    public struct Rotation
-    {
-        /// Sine and cosine
-        public float Sin,
-            Cos;
-
-        public Rotation(float angle)
-        {
-            Sin = (float)Math.Sin(angle);
-            Cos = (float)Math.Cos(angle);
-        }
-
-        public Rotation(float sin, float cos)
-        {
-            Sin = sin;
-            Cos = cos;
-        }
-
-        public static Rotation Identity => new(0, 1);
-
-        public void Set(float angle)
-        {
-            //FPE: Optimization
-            if (angle == 0)
+            get => _parent;
+            set
             {
-                Sin = 0;
-                Cos = 1;
-            }
-            else
-            {
-                // TODO_ERIN optimize
-                Sin = (float)Math.Sin(angle);
-                Cos = (float)Math.Cos(angle);
+                _parent?._children.Remove(this);
+                value._children.Add(this);
+                _parent = value;
+                SetDirty();
             }
         }
+        public Entity Entity { get; set; } = entity;
 
-        public void SetIdentity()
+        public Vector2 Position
         {
-            Sin = 0;
-            Cos = 1;
+            get
+            {
+                UpdateTransform();
+                if (_positionDirty)
+                {
+                    if (Parent is null)
+                    {
+                        _position = _localPosition;
+                    }
+                    else
+                    {
+                        Parent.UpdateTransform();
+                        Vector2Ext.Transform(_localPosition, Parent._worldTransform, out _position);
+                    }
+
+                    _positionDirty = false;
+                }
+
+                return _position;
+            }
+            set
+            {
+                _position = value;
+                if (Parent is not null)
+                {
+                    LocalPosition = Vector2.Transform(_position, WorldToLocalTransform);
+                }
+                else
+                {
+                    LocalPosition = value;
+                }
+                _positionDirty = false;
+            }
+        }
+        public Vector2 LocalPosition
+        {
+            get
+            {
+                UpdateTransform();
+                return _localPosition;
+            }
+            set
+            {
+                _localPosition = value;
+                _localDirty =
+                    _positionDirty =
+                    _localPositionDirty =
+                    _localRotationDirty =
+                    _localScaleDirty =
+                        true;
+                SetDirty();
+            }
+        }
+        public float Rotation
+        {
+            get
+            {
+                UpdateTransform();
+                return _rotation;
+            }
+            set
+            {
+                _rotation = value;
+                if (Parent is not null)
+                {
+                    LocalRotation = Parent.Rotation * value;
+                }
+                else
+                {
+                    LocalRotation = value;
+                }
+            }
+        }
+        public float LocalRotation
+        {
+            get
+            {
+                UpdateTransform();
+                return _localRotation;
+            }
+            set
+            {
+                _localRotation = value;
+                _localDirty =
+                    _positionDirty =
+                    _localPositionDirty =
+                    _localRotationDirty =
+                    _localScaleDirty =
+                        true;
+                SetDirty();
+            }
+        }
+        public Vector2 Scale
+        {
+            get
+            {
+                UpdateTransform();
+                return _scale;
+            }
+            set
+            {
+                _scale = value;
+                if (Parent is not null)
+                {
+                    LocalScale = value / Parent._scale;
+                }
+                else
+                {
+                    LocalScale = value;
+                }
+            }
+        }
+        public Vector2 LocalScale
+        {
+            get
+            {
+                UpdateTransform();
+                return _localScale;
+            }
+            set
+            {
+                _localScale = value;
+                _localDirty = _positionDirty = _localScaleDirty = true;
+                SetDirty();
+            }
         }
 
-        public float GetAngle()
+        public Matrix2 LocalToWorldTransform
         {
-            return (float)Math.Atan2(Sin, Cos);
+            get
+            {
+                UpdateTransform();
+                return _worldTransform;
+            }
+        }
+        public Matrix2 WorldToLocalTransform
+        {
+            get
+            {
+                if (_worldToLocalDirty)
+                {
+                    if (Parent == null)
+                    {
+                        _worldToLocalTransform = Matrix2.Identity;
+                    }
+                    else
+                    {
+                        Parent.UpdateTransform();
+                        Matrix2.Invert(ref Parent._worldTransform, out _worldToLocalTransform);
+                    }
+
+                    _worldToLocalDirty = false;
+                }
+
+                return _worldToLocalTransform;
+            }
         }
 
-        public Vector2 GetXAxis()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void UpdateTransform()
         {
-            return new Vector2(Cos, Sin);
+            if (_dirty)
+            {
+                Parent?.UpdateTransform();
+
+                if (_localDirty)
+                {
+                    if (_localPositionDirty)
+                    {
+                        Matrix2.CreateTranslation(
+                            _localPosition.X,
+                            _localPosition.Y,
+                            out _translationMatrix
+                        );
+                        _localPositionDirty = false;
+                    }
+
+                    if (_localRotationDirty)
+                    {
+                        Matrix2.CreateRotation(_localRotation, out _rotationMatrix);
+                        _localRotationDirty = false;
+                    }
+
+                    if (_localScaleDirty)
+                    {
+                        Matrix2.CreateScale(_localScale.X, _localScale.Y, out _scaleMatrix);
+                        _localScaleDirty = false;
+                    }
+
+                    Matrix2.Multiply(ref _scaleMatrix, ref _rotationMatrix, out _localTransform);
+                    Matrix2.Multiply(
+                        ref _localTransform,
+                        ref _translationMatrix,
+                        out _localTransform
+                    );
+
+                    if (Parent == null)
+                    {
+                        _worldTransform = _localTransform;
+                        _rotation = _localRotation;
+                        _scale = _localScale;
+                    }
+
+                    if (Parent != null)
+                    {
+                        Matrix2.Multiply(
+                            ref _localTransform,
+                            ref Parent._worldTransform,
+                            out _worldTransform
+                        );
+
+                        _rotation = _localRotation + Parent._rotation;
+                        _scale = Parent._scale * _localScale;
+                    }
+
+                    _worldToLocalDirty = true;
+                    _positionDirty = true;
+                    _dirty = false;
+                }
+            }
         }
 
-        public Vector2 GetYAxis()
+        void SetDirty()
         {
-            return new Vector2(-Sin, Cos);
+            Entity.OnTransformChanged();
+            for (var i = 0; i < _children.Count; i++)
+            {
+                _children[i].SetDirty();
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "[Transform: parent: {0}, position: {1}, rotation: {2}, scale: {3}, localPosition: {4}, localRotation: {5}, localScale: {6}]",
+                Parent != null,
+                Position,
+                Rotation,
+                Scale,
+                LocalPosition,
+                LocalRotation,
+                LocalScale
+            );
         }
     }
 }

@@ -88,6 +88,9 @@ namespace ProjectGaem2.Engine.ECS.Utils
                     }
 
                     _components.Remove(component);
+
+                    component.OnRemovedFromEntity();
+                    component.Entity = null;
                 }
 
                 _componentsToRemove.Clear();
@@ -118,6 +121,11 @@ namespace ProjectGaem2.Engine.ECS.Utils
                 {
                     var component = _buffer[i];
                     component.OnAddedToEntity();
+
+                    if (component.Enable)
+                    {
+                        component.OnEnable();
+                    }
                 }
 
                 _buffer.Clear();
@@ -139,6 +147,25 @@ namespace ProjectGaem2.Engine.ECS.Utils
             for (int i = 0; i < _renderableComponents.Count; i++)
             {
                 _renderableComponents[i].Draw(spriteBatch);
+            }
+        }
+
+        internal void OnEntityTransformChanged()
+        {
+            for (var i = 0; i < _components.Count; i++)
+            {
+                if (_components[i].Enable)
+                {
+                    _components[i].OnEntityTransformChanged();
+                }
+            }
+
+            for (var i = 0; i < _componentsToAdd.Count; i++)
+            {
+                if (_componentsToAdd[i].Enable)
+                {
+                    _componentsToAdd[i].OnEntityTransformChanged();
+                }
             }
         }
     }

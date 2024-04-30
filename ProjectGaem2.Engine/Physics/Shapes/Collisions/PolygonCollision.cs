@@ -1,5 +1,4 @@
 ﻿using System;
-using ProjectGaem2.Engine.ECS.Components;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
@@ -7,9 +6,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool PolygonToPolygon(
             Polygon first,
-            Transform firstT,
+            PhysicsInternalTransform firstT,
             Polygon second,
-            Transform secondT
+            PhysicsInternalTransform secondT
         )
         {
             GJK.Compute(
@@ -26,9 +25,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool PolygonToPolygonManifold(
             Polygon first,
-            Transform firstT,
+            PhysicsInternalTransform firstT,
             Polygon second,
-            Transform secondT,
+            PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {

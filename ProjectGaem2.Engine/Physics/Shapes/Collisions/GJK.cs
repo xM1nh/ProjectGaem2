@@ -1,26 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.DataStructures;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
-    public static class Settings
+    internal static class Settings
     {
-        public const int MaxGJKIterations = 20;
-        public const float Epsilon = 1.192092896e-7f;
+        internal const int MaxGJKIterations = 20;
+        internal const float Epsilon = 1.192092896e-7f;
     }
 
-    public struct GJKProxy
+    internal struct GJKProxy
     {
-        public Vector2[] Vertices;
+        internal Vector2[] Vertices;
 
-        public int Count;
+        internal int Count;
 
-        public float Radius;
+        internal float Radius;
 
-        public void Set(Shape shape)
+        internal void Set(Shape shape)
         {
             switch (shape)
             {
@@ -59,7 +58,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             }
         }
 
-        public int GetSupport(Vector2 direction)
+        internal int GetSupport(Vector2 direction)
         {
             int bestIndex = 0;
             float bestValue = Vector2.Dot(Vertices[0], direction);
@@ -76,7 +75,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             return bestIndex;
         }
 
-        public Vector2 GetSupportVertex(Vector2 direction)
+        internal Vector2 GetSupportVertex(Vector2 direction)
         {
             int bestIndex = 0;
             float bestValue = Vector2.Dot(Vertices[0], direction);
@@ -93,51 +92,51 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             return Vertices[bestIndex];
         }
 
-        public ref readonly Vector2 GetVertex(int index)
+        internal ref readonly Vector2 GetVertex(int index)
         {
             Debug.Assert(0 <= index && index < Count);
             return ref Vertices[index];
         }
     }
 
-    public struct SimplexCache
+    internal struct SimplexCache
     {
         /// <summary>
         /// Length or area
         /// </summary>
-        public ushort Count;
+        internal ushort Count;
 
         /// <summary>
         /// Vertices on shape A
         /// </summary>
-        public FixedArray3<byte> IndexA;
+        internal FixedArray3<byte> IndexA;
 
         /// <summary>
         /// Vertices on shape B
         /// </summary>
-        public FixedArray3<byte> IndexB;
+        internal FixedArray3<byte> IndexB;
 
-        public float Metric;
+        internal float Metric;
     }
 
-    public struct GJKOutput
+    internal struct GJKOutput
     {
-        public float Distance;
+        internal float Distance;
 
         /// <summary>
         /// Number of GJK iterations used
         /// </summary>
-        public int Iterations;
+        internal int Iterations;
 
         /// <summary>
         /// Closest point on shapeA
         /// </summary>
-        public Vector2 PointA;
+        internal Vector2 PointA;
 
         /// <summary>
         /// Closest point on shapeB
         /// </summary>
-        public Vector2 PointB;
+        internal Vector2 PointB;
     }
 
     struct SimplexVertex
@@ -145,32 +144,32 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         /// <summary>
         /// Barycentric coordinate for closest point
         /// </summary>
-        public float A;
+        internal float A;
 
         /// <summary>
         /// wA index
         /// </summary>
-        public int IndexA;
+        internal int IndexA;
 
         /// <summary>
         /// wB index
         /// </summary>
-        public int IndexB;
+        internal int IndexB;
 
         /// <summary>
         /// wB - wA
         /// </summary>
-        public Vector2 W;
+        internal Vector2 W;
 
         /// <summary>
         /// Support point in proxyA
         /// </summary>
-        public Vector2 Wa;
+        internal Vector2 Wa;
 
         /// <summary>
         /// Support point in proxyB
         /// </summary>
-        public Vector2 Wb;
+        internal Vector2 Wb;
     }
 
     struct Simplex
@@ -181,9 +180,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         internal void ReadCache(
             in SimplexCache cache,
             GJKProxy proxyA,
-            Transform transformA,
+            PhysicsInternalTransform transformA,
             GJKProxy proxyB,
-            Transform transformB
+            PhysicsInternalTransform transformB
         )
         {
             Debug.Assert(cache.Count <= 3);
@@ -192,7 +191,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             Count = cache.Count;
             for (int i = 0; i < Count; ++i)
             {
-                var v = V[i];
+                ref var v = ref V[i];
                 v.IndexA = cache.IndexA[i];
                 v.IndexB = cache.IndexB[i];
                 var wALocal = proxyA.Vertices[v.IndexA];
@@ -220,7 +219,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             // If the cache is empty or invalid ...
             if (Count == 0)
             {
-                var v = V[0];
+                ref var v = ref V[0];
                 v.IndexA = 0;
                 v.IndexB = 0;
                 var wALocal = proxyA.Vertices[0];
@@ -521,13 +520,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         }
     }
 
-    public static class GJK
+    internal static class GJK
     {
-        public static void Compute(
+        internal static void Compute(
             Shape shapeA,
-            Transform transformA,
+            PhysicsInternalTransform transformA,
             Shape shapeB,
-            Transform transformB,
+            PhysicsInternalTransform transformB,
             bool useRadii,
             out GJKOutput output,
             out SimplexCache cache

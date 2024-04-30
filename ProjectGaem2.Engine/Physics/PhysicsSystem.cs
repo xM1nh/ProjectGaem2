@@ -27,12 +27,12 @@ namespace ProjectGaem2.Engine.Physics
         }
 
         public static HashSet<Collider> CollisionBroadphase(RectangleF rect) =>
-            _spatialHash.Aabb(ref rect, null);
+            _spatialHash.Aabb(rect, null);
 
         public static HashSet<Collider> CollisionBroadphaseExcludingSelf(Collider collider)
         {
-            var bound = collider.Bounds;
-            return _spatialHash.Aabb(ref bound, collider);
+            var bounds = collider.Bounds;
+            return _spatialHash.Aabb(bounds, collider);
         }
     }
 }

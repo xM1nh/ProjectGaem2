@@ -25,7 +25,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Renderables
                 Entity.Transform.Position,
                 Sprite.SourceRectangle,
                 Color,
-                Entity.Transform.Rotation.GetAngle(),
+                Entity.Transform.Rotation,
                 Sprite.Origin,
                 Entity.Transform.Scale,
                 Effects,

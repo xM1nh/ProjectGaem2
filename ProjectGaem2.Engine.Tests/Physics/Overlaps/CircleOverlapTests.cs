@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
+using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
@@ -212,7 +212,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             var second = new Polygon();
             List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
 
             //Act
             var result = Collision.CircleToPolygon(first, transform, second, transform);
@@ -229,7 +229,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             var second = new Polygon();
             List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
 
             //Act
             var result = Collision.CircleToPolygon(first, transform, second, transform);
@@ -246,7 +246,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             var second = new Polygon();
             List<Vector2> vertices = [new Vector2(2, 2), new Vector2(2, 3), new Vector2(3, 2)];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
 
             //Act
             var result = Collision.CircleToPolygon(first, transform, second, transform);

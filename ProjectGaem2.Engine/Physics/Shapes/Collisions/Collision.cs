@@ -1,5 +1,4 @@
 ﻿using System;
-using ProjectGaem2.Engine.ECS.Components;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
@@ -7,9 +6,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool Collides(
             Shape first,
-            Transform firstT,
+            PhysicsInternalTransform firstT,
             Shape second,
-            Transform secondT,
+            PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {
@@ -174,7 +173,12 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             }
         }
 
-        public static bool Overlaps(Shape first, Transform firstT, Shape second, Transform secondT)
+        public static bool Overlaps(
+            Shape first,
+            PhysicsInternalTransform firstT,
+            Shape second,
+            PhysicsInternalTransform secondT
+        )
         {
             return first switch
             {

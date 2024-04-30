@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.Utils.Extensions;
 
 namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
@@ -17,9 +16,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Box2DToCapsule2D(
             Box2D box,
-            Transform boxT,
+            PhysicsInternalTransform boxT,
             Capsule2D capsule,
-            Transform capsuleT
+            PhysicsInternalTransform capsuleT
         )
         {
             //throw new NotImplementedException();
@@ -35,7 +34,12 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             return output.Distance < 10.0f * Settings.Epsilon;
         }
 
-        public static bool Box2DToPolygon(Box2D box, Transform boxT, Polygon poly, Transform polyT)
+        public static bool Box2DToPolygon(
+            Box2D box,
+            PhysicsInternalTransform boxT,
+            Polygon poly,
+            PhysicsInternalTransform polyT
+        )
         {
             GJK.Compute(box, boxT, poly, polyT, true, out GJKOutput output, out SimplexCache cache);
 
@@ -104,9 +108,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Box2DToCapsule2DManifold(
             Box2D box,
-            Transform boxT,
+            PhysicsInternalTransform boxT,
             Capsule2D capsule,
-            Transform capsuleT,
+            PhysicsInternalTransform capsuleT,
             out Manifold manifold
         )
         {
@@ -115,9 +119,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Box2DToPolygonManifold(
             Box2D box,
-            Transform boxT,
+            PhysicsInternalTransform boxT,
             Polygon poly,
-            Transform polyT,
+            PhysicsInternalTransform polyT,
             out Manifold manifold
         )
         {

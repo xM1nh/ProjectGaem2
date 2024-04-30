@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Components;
+using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
@@ -174,8 +174,8 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(Vector2.Zero, 2);
             var second = new Capsule2D(new Vector2(1, 0), new Vector2(2, 0), 1);
-            var fTransfrom = Transform.Identity;
-            var sTransfrom = Transform.Identity;
+            var fTransfrom = PhysicsInternalTransform.Identity;
+            var sTransfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), Count = 1 };
             expectedManifold.ContactPoints[0] = Vector2.Zero;
             expectedManifold.Depths[0] = 2;
@@ -202,7 +202,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(new Vector2(0, 2), 1);
             var second = new Capsule2D(new Vector2(1, 4), new Vector2(1, 0), 1);
-            var transfrom = Transform.Identity;
+            var transfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { Normal = new Vector2(1, 0), Count = 1 };
             expectedManifold.ContactPoints[0] = new Vector2(0, 2);
             expectedManifold.Depths[0] = 1;
@@ -229,7 +229,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(Vector2.Zero, 1);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(3, 0), 1);
-            var transfrom = Transform.Identity;
+            var transfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
@@ -254,7 +254,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(new Vector2(0, 2), 1);
             var second = new Capsule2D(new Vector2(2, 4), new Vector2(2, 0), 1);
-            var transfrom = Transform.Identity;
+            var transfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
@@ -279,7 +279,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(Vector2.Zero, 1);
             var second = new Capsule2D(new Vector2(3, 0), new Vector2(4, 0), 1);
-            var transfrom = Transform.Identity;
+            var transfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
@@ -304,7 +304,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Circle(new Vector2(0, 2), 1);
             var second = new Capsule2D(new Vector2(3, 4), new Vector2(3, 0), 1);
-            var transfrom = Transform.Identity;
+            var transfrom = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
@@ -337,7 +337,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
                 new Vector2(0, 4)
             ];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
             expectedManifold.ContactPoints[0] = new Vector2(4, 2);
             expectedManifold.Depths[0] = 3;
@@ -372,7 +372,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
                 new Vector2(4, 0)
             ];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { Count = 1, Normal = new Vector2(-1, 0) };
             expectedManifold.ContactPoints[0] = new Vector2(4, 2);
             expectedManifold.Depths[0] = 1;
@@ -401,7 +401,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             var second = new Polygon();
             List<Vector2> vertices = [Vector2.One, new Vector2(1, 3), new Vector2(3, 1)];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
@@ -428,7 +428,7 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             var second = new Polygon();
             List<Vector2> vertices = [new Vector2(2, 2), new Vector2(2, 3), new Vector2(3, 2)];
             second.SetVertices(vertices);
-            var transform = Transform.Identity;
+            var transform = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold() { };
 
             //Act
