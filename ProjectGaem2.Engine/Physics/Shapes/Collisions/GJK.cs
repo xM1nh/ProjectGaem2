@@ -180,9 +180,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         internal void ReadCache(
             in SimplexCache cache,
             GJKProxy proxyA,
-            PhysicsInternalTransform transformA,
+            in PhysicsInternalTransform transformA,
             GJKProxy proxyB,
-            PhysicsInternalTransform transformB
+            in PhysicsInternalTransform transformB
         )
         {
             Debug.Assert(cache.Count <= 3);
@@ -524,14 +524,20 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         internal static void Compute(
             Shape shapeA,
-            PhysicsInternalTransform transformA,
+            in PhysicsInternalTransform transformA,
             Shape shapeB,
-            PhysicsInternalTransform transformB,
+            in PhysicsInternalTransform transformB,
             bool useRadii,
             out GJKOutput output,
             out SimplexCache cache
         )
         {
+            //Translate to near origin
+            var shiftedTransformA = transformA;
+            shiftedTransformA.Position -= transformA.Position;
+            var shiftedTransformB = transformB;
+            shiftedTransformB.Position -= transformB.Position;
+
             cache = new SimplexCache();
             var proxyA = new GJKProxy();
             var proxyB = new GJKProxy();
@@ -540,7 +546,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
             // Initialize the simplex.
             var simplex = new Simplex();
-            simplex.ReadCache(in cache, proxyA, transformA, proxyB, transformB);
+            simplex.ReadCache(in cache, proxyA, shiftedTransformA, proxyB, shiftedTransformB);
 
             // Get simplex vertices as an array.
             ref var vertices = ref simplex.V;
@@ -603,11 +609,11 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
                 // Compute a tentative new simplex vertex using support points.
                 ref var vertex = ref vertices[simplex.Count];
-                vertex.IndexA = proxyA.GetSupport(GJKHelper.MulT(transformA.Rotation, -d));
-                vertex.Wa = GJKHelper.Mul(transformA, proxyA.GetVertex(vertex.IndexA));
+                vertex.IndexA = proxyA.GetSupport(GJKHelper.MulT(shiftedTransformA.Rotation, -d));
+                vertex.Wa = GJKHelper.Mul(shiftedTransformA, proxyA.GetVertex(vertex.IndexA));
 
-                vertex.IndexB = proxyB.GetSupport(GJKHelper.MulT(transformB.Rotation, d));
-                vertex.Wb = GJKHelper.Mul(transformB, proxyB.GetVertex(vertex.IndexB));
+                vertex.IndexB = proxyB.GetSupport(GJKHelper.MulT(shiftedTransformB.Rotation, d));
+                vertex.Wb = GJKHelper.Mul(shiftedTransformB, proxyB.GetVertex(vertex.IndexB));
                 vertex.W = vertex.Wb - vertex.Wa;
 
                 // Check for duplicate support points. This is the main termination criteria.

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ProjectGaem2.Engine.ECS.Entities;
+using ProjectGaem2.Engine.ECS;
 using ProjectGaem2.Suika.Components;
 
 namespace ProjectGaem2.Suika.Entities

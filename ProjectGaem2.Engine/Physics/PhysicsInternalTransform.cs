@@ -63,23 +63,27 @@ namespace ProjectGaem2.Engine.Physics
 
     public struct PhysicsInternalTransform
     {
-        public Vector2 Position { get; set; }
-        public Rotation Rotation { get; set; }
+        public Vector2 Position;
+        public Rotation Rotation;
+        public Vector2 Scale;
 
-        public static PhysicsInternalTransform Identity => new(Vector2.Zero, Rotation.Identity);
+        public static PhysicsInternalTransform Identity =>
+            new(Vector2.Zero, Rotation.Identity, Vector2.One);
 
         public PhysicsInternalTransform() { }
 
-        public PhysicsInternalTransform(Vector2 position, Rotation rot)
+        public PhysicsInternalTransform(Vector2 position, Rotation rot, Vector2 scale)
         {
             Position = position;
             Rotation = rot;
+            Scale = scale;
         }
 
         public void SetIdentity()
         {
             Position = Vector2.Zero;
             Rotation.SetIdentity();
+            Scale = Vector2.One;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -6,10 +7,13 @@ using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.ECS.Utils;
 using ProjectGaem2.Engine.Utils.Math;
 
-namespace ProjectGaem2.Engine.ECS.Entities
+namespace ProjectGaem2.Engine.ECS
 {
-    public abstract class Entity
+    public abstract class Entity : IComparable<Entity>
     {
+        private static uint _idGenerator;
+        public readonly uint Id;
+        public string Name;
         public Transform Transform { get; set; }
         public ComponentList Components { get; }
 
@@ -81,11 +85,16 @@ namespace ProjectGaem2.Engine.ECS.Entities
             get => Transform.WorldToLocalTransform;
         }
 
-        public Entity()
+        public Entity(string name)
         {
             Transform = new Transform(this);
             Components = new(this);
+            Id = _idGenerator++;
+            Name = name;
         }
+
+        public Entity()
+            : this(Guid.NewGuid().ToString()) { }
 
         public T AddComponent<T>(T component)
             where T : Component
@@ -123,5 +132,7 @@ namespace ProjectGaem2.Engine.ECS.Entities
         {
             Components.OnEntityTransformChanged();
         }
+
+        public int CompareTo(Entity other) => Id.CompareTo(other.Id);
     }
 }

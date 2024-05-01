@@ -8,9 +8,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool Capsule2DToCapsule2D(
             Capsule2D first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Capsule2D second,
-            PhysicsInternalTransform secondT
+            in PhysicsInternalTransform secondT
         )
         {
             GJK.Compute(
@@ -27,9 +27,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToPolygon(
             Capsule2D cap,
-            PhysicsInternalTransform capT,
+            in PhysicsInternalTransform capT,
             Polygon poly,
-            PhysicsInternalTransform polyT
+            in PhysicsInternalTransform polyT
         )
         {
             GJK.Compute(cap, capT, poly, polyT, true, out GJKOutput output, out SimplexCache cache);
@@ -38,9 +38,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToCapsule2DManifold(
             Capsule2D first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Capsule2D second,
-            PhysicsInternalTransform secondT,
+            in PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {
@@ -82,9 +82,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Capsule2DToPolygonManifold(
             Capsule2D cap,
-            PhysicsInternalTransform capT,
+            in PhysicsInternalTransform capT,
             Polygon poly,
-            PhysicsInternalTransform polyT,
+            in PhysicsInternalTransform polyT,
             out Manifold manifold
         )
         {

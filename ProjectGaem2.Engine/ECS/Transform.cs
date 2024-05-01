@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.ECS.Entities;
 using ProjectGaem2.Engine.Utils.Extensions;
 using ProjectGaem2.Engine.Utils.Math;
 
-namespace ProjectGaem2.Engine.ECS.Components
+namespace ProjectGaem2.Engine.ECS
 {
     public class Transform(Entity entity)
     {
@@ -36,7 +35,7 @@ namespace ProjectGaem2.Engine.ECS.Components
         private Matrix2 _translationMatrix;
         private Matrix2 _scaleMatrix;
 
-        private List<Transform> _children;
+        private List<Transform> _children = [];
 
         public Transform Parent
         {

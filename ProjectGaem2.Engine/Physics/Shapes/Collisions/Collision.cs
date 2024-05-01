@@ -6,9 +6,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool Collides(
             Shape first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Shape second,
-            PhysicsInternalTransform secondT,
+            in PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {
@@ -175,9 +175,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Overlaps(
             Shape first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Shape second,
-            PhysicsInternalTransform secondT
+            in PhysicsInternalTransform secondT
         )
         {
             return first switch

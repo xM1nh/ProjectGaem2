@@ -6,9 +6,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         public static bool PolygonToPolygon(
             Polygon first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Polygon second,
-            PhysicsInternalTransform secondT
+            in PhysicsInternalTransform secondT
         )
         {
             GJK.Compute(
@@ -25,9 +25,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool PolygonToPolygonManifold(
             Polygon first,
-            PhysicsInternalTransform firstT,
+            in PhysicsInternalTransform firstT,
             Polygon second,
-            PhysicsInternalTransform secondT,
+            in PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {

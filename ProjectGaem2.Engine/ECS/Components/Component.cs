@@ -1,7 +1,4 @@
-﻿using System;
-using ProjectGaem2.Engine.ECS.Entities;
-
-namespace ProjectGaem2.Engine.ECS.Components
+﻿namespace ProjectGaem2.Engine.ECS.Components
 {
     public class Component
     {

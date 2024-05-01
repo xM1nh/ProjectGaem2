@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using ProjectGaem2.Engine.ECS.Components.Physics.Colliders;
 using ProjectGaem2.Engine.Utils.Math;
 
@@ -8,6 +9,7 @@ namespace ProjectGaem2.Engine.Physics
     {
         static SpatialHash _spatialHash;
         public static int SpatialHashCellSize { get; set; } = 100;
+        public static Vector2 Gravity { get; set; } = new(0, 300f);
 
         public static void Reset()
         {

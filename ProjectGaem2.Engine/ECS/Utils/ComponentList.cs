@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.ECS.Components.Renderables;
-using ProjectGaem2.Engine.ECS.Entities;
 
 namespace ProjectGaem2.Engine.ECS.Utils
 {
