@@ -9,18 +9,21 @@ namespace ProjectGaem2.Engine.Physics.Shapes
         public float Radius;
 
         public Circle()
+            : base()
         {
             Center = Vector2.Zero;
             Radius = 1;
         }
 
         public Circle(float radius)
+            : base()
         {
             Radius = radius;
             Center = Vector2.Zero;
         }
 
         public Circle(Vector2 center, float radius)
+            : base()
         {
             Center = center;
             Radius = radius;
@@ -34,6 +37,12 @@ namespace ProjectGaem2.Engine.Physics.Shapes
                 2.0f * Radius,
                 2.0f * Radius
             );
+        }
+
+        public override void SetTransform(Vector2 position, float rotation = 0)
+        {
+            Center.X = position.X + Radius;
+            Center.Y = position.Y + Radius;
         }
     }
 }

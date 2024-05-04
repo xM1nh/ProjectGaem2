@@ -65,14 +65,13 @@ namespace ProjectGaem2.Engine.Physics
     {
         public Vector2 Position;
         public Rotation Rotation;
-        public Vector2 Scale;
+        public float Scale;
 
-        public static PhysicsInternalTransform Identity =>
-            new(Vector2.Zero, Rotation.Identity, Vector2.One);
+        public static PhysicsInternalTransform Identity => new(Vector2.Zero, Rotation.Identity, 1);
 
         public PhysicsInternalTransform() { }
 
-        public PhysicsInternalTransform(Vector2 position, Rotation rot, Vector2 scale)
+        public PhysicsInternalTransform(Vector2 position, Rotation rot, float scale)
         {
             Position = position;
             Rotation = rot;
@@ -83,7 +82,7 @@ namespace ProjectGaem2.Engine.Physics
         {
             Position = Vector2.Zero;
             Rotation.SetIdentity();
-            Scale = Vector2.One;
+            Scale = 1;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
@@ -70,15 +69,12 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, 3), new Vector2(4, 3), 2);
-            var transform = PhysicsInternalTransform.Identity;
             var expectedManifold = new Manifold();
 
             //Act
             var result = Collision.Box2DToCapsule2DManifold(
                 first,
-                transform,
                 second,
-                transform,
                 out Manifold actualManifold
             );
 
@@ -95,15 +91,13 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, -2), new Vector2(3, 5), 2);
-            var transform = PhysicsInternalTransform.Identity;
+
             var expectedManifold = new Manifold();
 
             //Act
             var result = Collision.Box2DToCapsule2DManifold(
                 first,
-                transform,
                 second,
-                transform,
                 out Manifold actualManifold
             );
 
@@ -120,15 +114,13 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, 1), new Vector2(5, 1), 1);
-            var transform = PhysicsInternalTransform.Identity;
+
             var expectedManifold = new Manifold();
 
             //Act
             var result = Collision.Box2DToCapsule2DManifold(
                 first,
-                transform,
                 second,
-                transform,
                 out Manifold actualManifold
             );
 
@@ -145,15 +137,13 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, -1), new Vector2(3, 3), 1);
-            var transform = PhysicsInternalTransform.Identity;
+
             var expectedManifold = new Manifold();
 
             //Act
             var result = Collision.Box2DToCapsule2DManifold(
                 first,
-                transform,
                 second,
-                transform,
                 out Manifold actualManifold
             );
 
@@ -170,15 +160,13 @@ namespace ProjectGaem2.Engine.Tests.Physics.Collisions
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(4, -1), new Vector2(4, 3), 1);
-            var transform = PhysicsInternalTransform.Identity;
+
             var expectedManifold = new Manifold();
 
             //Act
             var result = Collision.Box2DToCapsule2DManifold(
                 first,
-                transform,
                 second,
-                transform,
                 out Manifold actualManifold
             );
 

@@ -54,10 +54,8 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Vector2 Mul(in PhysicsInternalTransform T, in Vector2 v)
         {
-            var x =
-                T.Rotation.Cos * T.Scale.X * v.X - T.Rotation.Sin * T.Scale.Y * v.Y + T.Position.X;
-            var y =
-                T.Rotation.Sin * T.Scale.X * v.X + T.Rotation.Cos * T.Scale.Y * v.Y + T.Position.Y;
+            var x = T.Rotation.Cos * v.X - T.Rotation.Sin * v.Y + T.Position.X;
+            var y = T.Rotation.Sin * v.X + T.Rotation.Cos * v.Y + T.Position.Y;
             return new Vector2(x, y);
         }
     }

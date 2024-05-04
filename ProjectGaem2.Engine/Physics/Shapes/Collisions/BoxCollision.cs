@@ -14,19 +14,14 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                 && first.Min.Y < second.Max.Y;
         }
 
-        public static bool Box2DToCapsule2D(
-            Box2D box,
-            in PhysicsInternalTransform boxT,
-            Capsule2D capsule,
-            in PhysicsInternalTransform capsuleT
-        )
+        public static bool Box2DToCapsule2D(Box2D box, Capsule2D capsule)
         {
             //throw new NotImplementedException();
             GJK.Compute(
                 box,
-                boxT,
+                box.Transform,
                 capsule,
-                capsuleT,
+                capsule.Transform,
                 true,
                 out GJKOutput output,
                 out SimplexCache cache
@@ -34,14 +29,17 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             return output.Distance < 10.0f * Settings.Epsilon;
         }
 
-        public static bool Box2DToPolygon(
-            Box2D box,
-            in PhysicsInternalTransform boxT,
-            Polygon poly,
-            in PhysicsInternalTransform polyT
-        )
+        public static bool Box2DToPolygon(Box2D box, Polygon poly)
         {
-            GJK.Compute(box, boxT, poly, polyT, true, out GJKOutput output, out SimplexCache cache);
+            GJK.Compute(
+                box,
+                box.Transform,
+                poly,
+                poly.Transform,
+                true,
+                out GJKOutput output,
+                out SimplexCache cache
+            );
 
             return output.Distance < 10.0f * Settings.Epsilon;
         }
@@ -108,22 +106,14 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool Box2DToCapsule2DManifold(
             Box2D box,
-            in PhysicsInternalTransform boxT,
             Capsule2D capsule,
-            in PhysicsInternalTransform capsuleT,
             out Manifold manifold
         )
         {
             throw new NotImplementedException();
         }
 
-        public static bool Box2DToPolygonManifold(
-            Box2D box,
-            in PhysicsInternalTransform boxT,
-            Polygon poly,
-            in PhysicsInternalTransform polyT,
-            out Manifold manifold
-        )
+        public static bool Box2DToPolygonManifold(Box2D box, Polygon poly, out Manifold manifold)
         {
             throw new NotImplementedException();
         }

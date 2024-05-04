@@ -18,6 +18,15 @@ namespace ProjectGaem2.Engine.Physics.Shapes
             get => _normals;
         }
 
+        public Polygon()
+            : base() { }
+
+        public Polygon(List<Vector2> vertices)
+            : base()
+        {
+            SetVertices(vertices);
+        }
+
         public override void CalculateBounds()
         {
             throw new System.NotImplementedException();
@@ -43,6 +52,16 @@ namespace ProjectGaem2.Engine.Physics.Shapes
                 var temp = new Vector2(edge.Y, -edge.X);
                 temp.Normalize();
                 _normals.Add(temp);
+            }
+        }
+
+        public override void SetTransform(Vector2 position, float rotation = 0)
+        {
+            Transform.Position = position;
+
+            if (rotation != 0)
+            {
+                Transform.Rotation.Set(rotation);
             }
         }
     }

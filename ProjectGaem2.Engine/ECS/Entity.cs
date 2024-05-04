@@ -57,7 +57,7 @@ namespace ProjectGaem2.Engine.ECS
             set => Transform.LocalRotation = value;
         }
 
-        public Vector2 Scale
+        public float Scale
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Transform.Scale;
@@ -65,7 +65,7 @@ namespace ProjectGaem2.Engine.ECS
             set => Transform.Scale = value;
         }
 
-        public Vector2 LocalScale
+        public float LocalScale
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Transform.LocalScale;
@@ -118,9 +118,14 @@ namespace ProjectGaem2.Engine.ECS
         public List<T> GetComponents<T>()
             where T : Component => Components.GetComponents<T>();
 
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update()
         {
-            Components.Update(gameTime);
+            Components.Update();
+        }
+
+        public virtual void FixedUpdate()
+        {
+            Components.FixedUpdate();
         }
 
         public virtual void Draw(SpriteBatch spriteBatch)

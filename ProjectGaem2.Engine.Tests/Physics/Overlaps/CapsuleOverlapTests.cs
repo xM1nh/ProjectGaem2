@@ -14,10 +14,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 2);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(4, 0), 1);
-            var transfrom = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
+            var result = Collision.Capsule2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeTrue();
@@ -29,10 +28,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(2, 4), 1);
-            var transfrom = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
+            var result = Collision.Capsule2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();
@@ -44,10 +42,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 0), new Vector2(4, 0), 1);
-            var transfrom = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
+            var result = Collision.Capsule2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();
@@ -59,10 +56,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(2, 2), new Vector2(4, 2), 1);
-            var transfrom = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
+            var result = Collision.Capsule2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();
@@ -74,10 +70,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Capsule2D(Vector2.Zero, new Vector2(0, 4), 1);
             var second = new Capsule2D(new Vector2(3, 0), new Vector2(4, 0), 1);
-            var transfrom = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Capsule2DToCapsule2D(first, transfrom, second, transfrom);
+            var result = Collision.Capsule2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();

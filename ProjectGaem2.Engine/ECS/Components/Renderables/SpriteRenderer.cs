@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.Graphics.Sprites;
+using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.ECS.Components.Renderables
 {
@@ -10,6 +11,28 @@ namespace ProjectGaem2.Engine.ECS.Components.Renderables
         public Color Color { get; set; } = Color.White;
         public SpriteEffects Effects { get; set; } = SpriteEffects.None;
         public float Layer { get; set; } = 1;
+
+        public override RectangleF Bounds
+        {
+            get
+            {
+                if (_boundsDirty)
+                {
+                    if (Sprite is not null)
+                        _bounds.CalculateBounds(
+                            Entity.Position,
+                            Vector2.Zero,
+                            Entity.Scale,
+                            Entity.Rotation,
+                            Sprite.SourceRectangle.Width,
+                            Sprite.SourceRectangle.Height
+                        );
+                    _boundsDirty = false;
+                }
+
+                return _bounds;
+            }
+        }
 
         public SpriteRenderer() { }
 
@@ -22,12 +45,12 @@ namespace ProjectGaem2.Engine.ECS.Components.Renderables
         {
             spriteBatch.Draw(
                 Sprite.Texture,
-                Entity.Transform.Position,
+                Entity.Position,
                 Sprite.SourceRectangle,
                 Color,
-                Entity.Transform.Rotation,
+                Entity.Rotation,
                 Sprite.Origin,
-                Entity.Transform.Scale,
+                Entity.Scale,
                 Effects,
                 Layer
             );

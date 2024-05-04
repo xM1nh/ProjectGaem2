@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.Utils.Extensions;
 
 namespace ProjectGaem2.Engine.Utils.Math
 {
@@ -13,6 +14,8 @@ namespace ProjectGaem2.Engine.Utils.Math
     public struct RectangleF : IEquatable<RectangleF>
     {
         private static RectangleF emptyRectangle;
+        private static Matrix2 _tempMat,
+            _transformMat;
 
         //
         // Summary:
@@ -722,6 +725,78 @@ namespace ProjectGaem2.Engine.Utils.Math
             y = Y;
             width = Width;
             height = Height;
+        }
+
+        public void CalculateBounds(
+            Vector2 position,
+            Vector2 origin,
+            float scale,
+            float rotation,
+            float width,
+            float height
+        )
+        {
+            if (rotation == 0f)
+            {
+                X = position.X - origin.X * scale;
+                Y = position.Y - origin.Y * scale;
+                Width = width * scale;
+                Height = height * scale;
+            }
+            else
+            {
+                // special care for rotated bounds. we need to find our absolute min/max values and create the bounds from that
+                var worldPosX = position.X;
+                var worldPosY = position.Y;
+
+                // set the reference point to world reference taking origin into account
+                Matrix2.CreateTranslation(
+                    -worldPosX - origin.X,
+                    -worldPosY - origin.Y,
+                    out _transformMat
+                );
+                Matrix2.CreateScale(scale, out _tempMat); // scale ->
+                Matrix2.Multiply(ref _transformMat, ref _tempMat, out _transformMat);
+                Matrix2.CreateRotation(rotation, out _tempMat); // rotate ->
+                Matrix2.Multiply(ref _transformMat, ref _tempMat, out _transformMat);
+                Matrix2.CreateTranslation(worldPosX, worldPosY, out _tempMat); // translate back
+                Matrix2.Multiply(ref _transformMat, ref _tempMat, out _transformMat);
+
+                // TODO: this is a bit silly. we can just leave the worldPos translation in the Matrix and avoid this
+                // get all four corners in world space
+                var topLeft = new Vector2(worldPosX, worldPosY);
+                var topRight = new Vector2(worldPosX + width, worldPosY);
+                var bottomLeft = new Vector2(worldPosX, worldPosY + height);
+                var bottomRight = new Vector2(worldPosX + width, worldPosY + height);
+
+                // transform the corners into our work space
+                Vector2Ext.Transform(ref topLeft, ref _transformMat, out topLeft);
+                Vector2Ext.Transform(ref topRight, ref _transformMat, out topRight);
+                Vector2Ext.Transform(ref bottomLeft, ref _transformMat, out bottomLeft);
+                Vector2Ext.Transform(ref bottomRight, ref _transformMat, out bottomRight);
+
+                // find the min and max values so we can concoct our bounding box
+                var minX = MathF.Min(
+                    topLeft.X,
+                    MathF.Min(bottomRight.X, MathF.Min(topRight.X, bottomLeft.X))
+                );
+                var maxX = MathF.Max(
+                    topLeft.X,
+                    MathF.Max(bottomRight.X, MathF.Max(topRight.X, bottomLeft.X))
+                );
+                var minY = MathF.Min(
+                    topLeft.Y,
+                    MathF.Min(bottomRight.Y, MathF.Min(topRight.Y, bottomLeft.Y))
+                );
+                var maxY = MathF.Max(
+                    topLeft.Y,
+                    MathF.Max(bottomRight.Y, MathF.Max(topRight.Y, bottomLeft.Y))
+                );
+
+                Location = new Vector2(minX, minY);
+                Width = maxX - minX;
+                Height = maxY - minY;
+            }
         }
     }
 }

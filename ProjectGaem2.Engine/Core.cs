@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.Input;
+using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Utils;
 
 namespace ProjectGaem2.Engine
@@ -20,6 +21,7 @@ namespace ProjectGaem2.Engine
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            PhysicsSystem.Reset();
 
             base.Initialize();
         }

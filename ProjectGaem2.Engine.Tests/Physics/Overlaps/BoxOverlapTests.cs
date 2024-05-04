@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Microsoft.Xna.Framework;
-using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 
@@ -57,10 +56,8 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, 3), new Vector2(4, 3), 2);
 
-            var transform = PhysicsInternalTransform.Identity;
-
             //Act
-            var result = Collision.Box2DToCapsule2D(first, transform, second, transform);
+            var result = Collision.Box2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeTrue();
@@ -72,10 +69,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, -2), new Vector2(3, 5), 2);
-            var transform = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Box2DToCapsule2D(first, transform, second, transform);
+            var result = Collision.Box2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeTrue();
@@ -87,10 +83,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, 1), new Vector2(5, 1), 1);
-            var transform = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Box2DToCapsule2D(first, transform, second, transform);
+            var result = Collision.Box2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();
@@ -102,10 +97,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(3, -1), new Vector2(3, 3), 1);
-            var transform = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Box2DToCapsule2D(first, transform, second, transform);
+            var result = Collision.Box2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();
@@ -117,10 +111,9 @@ namespace ProjectGaem2.Engine.Tests.Physics.Overlaps
             //Arrange
             var first = new Box2D() { Min = Vector2.Zero, Max = new Vector2(2, 2) };
             var second = new Capsule2D(new Vector2(4, -1), new Vector2(4, 3), 1);
-            var transform = PhysicsInternalTransform.Identity;
 
             //Act
-            var result = Collision.Box2DToCapsule2D(first, transform, second, transform);
+            var result = Collision.Box2DToCapsule2D(first, second);
 
             //Assert
             result.Should().BeFalse();

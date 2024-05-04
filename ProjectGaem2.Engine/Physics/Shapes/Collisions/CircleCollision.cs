@@ -51,18 +51,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             return dSquared < radiiSum * radiiSum;
         }
 
-        public static bool CircleToPolygon(
-            Circle circle,
-            in PhysicsInternalTransform circleT,
-            Polygon polygon,
-            in PhysicsInternalTransform polygonT
-        )
+        public static bool CircleToPolygon(Circle circle, Polygon polygon)
         {
             GJK.Compute(
                 circle,
-                circleT,
+                circle.Transform,
                 polygon,
-                polygonT,
+                polygon.Transform,
                 true,
                 out GJKOutput output,
                 out SimplexCache cache
@@ -86,7 +81,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             if (dSquared < radiiSum * radiiSum)
             {
                 var d = MathF.Sqrt(dSquared);
-                var n = d != 0 ? Vector2.Normalize(dVector) : new Vector2(0, 1f);
+                var n = d != 0 ? Vector2.Normalize(dVector) : Vector2.UnitX;
 
                 manifold.Count = 1;
                 manifold.Depths[0] = radiiSum - d;
@@ -166,9 +161,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool CircleToCapsule2DManifold(
             Circle circle,
-            in PhysicsInternalTransform circleT,
             Capsule2D capsule,
-            in PhysicsInternalTransform capsuleT,
             out Manifold manifold
         )
         {
@@ -177,9 +170,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
             GJK.Compute(
                 circle,
-                circleT,
+                circle.Transform,
                 capsule,
-                capsuleT,
+                capsule.Transform,
                 false,
                 out GJKOutput output,
                 out SimplexCache cache
@@ -210,9 +203,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool CircleToPolygonManifold(
             Circle circle,
-            in PhysicsInternalTransform circleT,
             Polygon polygon,
-            in PhysicsInternalTransform polygonT,
             out Manifold manifold
         )
         {
@@ -221,9 +212,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
             GJK.Compute(
                 circle,
-                circleT,
+                circle.Transform,
                 polygon,
-                polygonT,
+                polygon.Transform,
                 false,
                 out GJKOutput output,
                 out SimplexCache cache
@@ -251,7 +242,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             //circle center is inside polygon, find the face closest to the center to form manifold
             else
             {
-                var transform = polygonT;
+                var transform = polygon.Transform;
                 var separation = float.MinValue;
                 var index = -1;
                 var local = GJKHelper.Mul(transform, circle.Center);

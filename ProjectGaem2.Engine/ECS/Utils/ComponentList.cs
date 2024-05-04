@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.ECS.Components.Renderables;
@@ -131,12 +130,21 @@ namespace ProjectGaem2.Engine.ECS.Utils
             }
         }
 
-        public void Update(GameTime gameTime)
+        public void Update()
         {
             HandleUpdate();
             for (int i = 0; i < _updatableComponents.Count; i++)
             {
-                _updatableComponents[i].Update(gameTime);
+                _updatableComponents[i].Update();
+            }
+        }
+
+        public void FixedUpdate()
+        {
+            HandleUpdate();
+            for (int i = 0; i < _updatableComponents.Count; i++)
+            {
+                _updatableComponents[i].FixedUpdate();
             }
         }
 

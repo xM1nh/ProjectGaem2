@@ -4,18 +4,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
     public static partial class Collision
     {
-        public static bool PolygonToPolygon(
-            Polygon first,
-            in PhysicsInternalTransform firstT,
-            Polygon second,
-            in PhysicsInternalTransform secondT
-        )
+        public static bool PolygonToPolygon(Polygon first, Polygon second)
         {
             GJK.Compute(
                 first,
-                firstT,
+                first.Transform,
                 second,
-                secondT,
+                second.Transform,
                 true,
                 out GJKOutput output,
                 out SimplexCache cache
@@ -25,9 +20,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 
         public static bool PolygonToPolygonManifold(
             Polygon first,
-            in PhysicsInternalTransform firstT,
             Polygon second,
-            in PhysicsInternalTransform secondT,
             out Manifold manifold
         )
         {

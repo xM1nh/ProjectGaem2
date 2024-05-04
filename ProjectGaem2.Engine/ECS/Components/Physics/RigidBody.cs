@@ -1,8 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using ProjectGaem2.Engine.ECS.Components.Physics.Colliders;
 using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
 using ProjectGaem2.Engine.Utils;
+using ProjectGaem2.Engine.Utils.Extensions;
 
 namespace ProjectGaem2.Engine.ECS.Components.Physics
 {
@@ -11,16 +13,20 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
         private Collider _collider;
 
         private float _mass = 10f;
-        private float _elasticity = 0.5f;
-        private float _friction = 0.5f;
-        private float _glue = 0.1f;
-
         private float _inverseMass;
+        private float _inertia;
+        private float _inverseInertia;
+        private float _restitution = 0.5f;
+        private float _staticFriction = 0.5f;
+        private float _dynamicFriction = 0.2f;
+        private Vector2 _force = Vector2.Zero;
+        private float _torque = 0f;
 
         public bool ShouldUseGravity = true;
-        public bool IsImmovable => _mass > 0.0001f;
+        public bool IsImmovable => _mass == 0;
 
-        public Vector2 Velocity { get; set; }
+        public Vector2 LinearVelocity;
+        public float AngularVelocity;
 
         public float Mass
         {
@@ -40,50 +46,81 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
             }
         }
 
-        public float Elasticity
+        public float Inertia
         {
-            get => _elasticity;
-            set { _elasticity = MathHelper.Clamp(value, 0, 1); }
+            get => _inertia;
+            set
+            {
+                _inertia = MathHelper.Clamp(value, 0, float.MaxValue);
+
+                if (_inertia != 0)
+                {
+                    _inverseInertia = 1 / _inertia;
+                }
+                else
+                {
+                    _inverseInertia = 0;
+                }
+            }
         }
 
-        public float Friction
+        public float Restitution
         {
-            get => _friction;
-            set { _friction = MathHelper.Clamp(value, 0, 1); }
+            get => _restitution;
+            set { _restitution = MathHelper.Clamp(value, 0, 1); }
         }
 
-        public float Glue
+        public float StaticFriction
         {
-            get => _glue;
-            set { _glue = MathHelper.Clamp(value, 0, 10); }
+            get => _staticFriction;
+            set { _staticFriction = MathHelper.Clamp(value, 0, 1); }
+        }
+
+        public float DynamicFriction
+        {
+            get => _dynamicFriction;
+            set { _dynamicFriction = MathHelper.Clamp(value, 0, 1); }
         }
 
         public RigidBody()
         {
             _inverseMass = 1 / _mass;
+            _inverseInertia = 1 / _inertia;
         }
 
         public override void OnAddedToEntity()
         {
             _collider = Entity.GetComponent<Collider>();
+
+            if (_collider is not null)
+            {
+                switch (_collider)
+                {
+                    case CircleCollider circle:
+                        Inertia = 0.5f * _mass * circle.Radius * circle.Radius;
+                        break;
+                    case BoxCollider box:
+                        Inertia =
+                            1f / 12 * _mass * (box.Width * box.Width + box.Height * box.Height);
+                        break;
+                }
+            }
         }
 
-        public void Update(GameTime gameTime)
+        public void Update() { }
+
+        public void FixedUpdate()
         {
             if (IsImmovable || _collider is null)
             {
-                Velocity = Vector2.Zero;
+                LinearVelocity = Vector2.Zero;
+                AngularVelocity = 0;
+
                 return;
             }
 
-            if (ShouldUseGravity)
-            {
-                Velocity += PhysicsSystem.Gravity * Time.DeltaTime;
-            }
-
-            Entity.Transform.Position += Velocity * Time.DeltaTime;
-
             var neighbors = PhysicsSystem.CollisionBroadphaseExcludingSelf(_collider);
+
             foreach (var neighbor in neighbors)
             {
                 if (neighbor.Entity == Entity)
@@ -95,76 +132,158 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                 {
                     var neighborRigidBody = neighbor.Entity.GetComponent<RigidBody>();
 
+                    Vector2 relativeVelocity;
+
+                    var e = MathF.Min(Restitution, neighborRigidBody.Restitution);
+                    var ra = manifold.ContactPoints[0] - _collider.Origin;
+                    var rb = manifold.ContactPoints[0] - neighborRigidBody._collider.Origin;
+
                     if (neighborRigidBody is not null)
                     {
-                        ProcessOverlap(neighborRigidBody, in manifold.MinimumTranslationVector);
-                        ProcessCollision(neighborRigidBody, in manifold.MinimumTranslationVector);
+                        ProcessOverlap(neighborRigidBody, manifold.MinimumTranslationVector);
+                        relativeVelocity =
+                            (
+                                neighborRigidBody.LinearVelocity
+                                + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                            ) - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
                     }
                     else
                     {
                         Entity.Transform.Position -= manifold.MinimumTranslationVector;
-                        var relativeVelocity = Velocity;
-                        CalculateResponseVelocity(
-                            ref relativeVelocity,
-                            in manifold.MinimumTranslationVector,
-                            out relativeVelocity
-                        );
-                        Velocity += relativeVelocity;
+                        relativeVelocity = LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra);
                     }
+
+                    Vector2.Dot(
+                        ref relativeVelocity,
+                        ref manifold.Normal,
+                        out float contactVelocityMag
+                    );
+
+                    if (contactVelocityMag > 0.0f)
+                    {
+                        continue;
+                    }
+
+                    var raCrossN = Vector2Ext.Cross(ra, manifold.Normal);
+                    var rbCrossN = Vector2Ext.Cross(rb, manifold.Normal);
+                    var invMassSum =
+                        _inverseMass
+                        + neighborRigidBody._inverseMass
+                        + raCrossN * raCrossN * _inverseInertia
+                        + rbCrossN * rbCrossN * neighborRigidBody._inverseInertia;
+
+                    var j = -(1.0f + e) * contactVelocityMag;
+                    j /= invMassSum;
+                    j /= manifold.Count;
+                    var impulse = j * manifold.Normal;
+
+                    ApplyImpulse(this, -impulse, ra);
+                    ApplyImpulse(neighborRigidBody, impulse, rb);
+
+                    //Tangential Impulse
+                    if (neighborRigidBody is not null)
+                    {
+                        relativeVelocity =
+                            neighborRigidBody.LinearVelocity
+                            + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                            - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
+                    }
+                    else
+                    {
+                        relativeVelocity = LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra);
+                    }
+
+                    var sf = MathF.Sqrt(_staticFriction * neighborRigidBody._staticFriction);
+                    var df = MathF.Sqrt(_dynamicFriction * neighborRigidBody._dynamicFriction);
+
+                    var tangent =
+                        relativeVelocity
+                        - Vector2.Dot(relativeVelocity, manifold.Normal) * manifold.Normal;
+                    tangent.Normalize();
+
+                    var jt = -Vector2.Dot(relativeVelocity, tangent);
+                    jt /= invMassSum;
+                    jt /= manifold.Count;
+
+                    if (jt < 0.005f)
+                    {
+                        continue;
+                    }
+
+                    Vector2 tangentImpulse;
+                    if (MathF.Abs(jt) < j * sf)
+                    {
+                        tangentImpulse = jt * tangent;
+                    }
+                    else
+                    {
+                        tangentImpulse = -j * tangent * df;
+                    }
+
+                    ApplyImpulse(this, -tangentImpulse, ra);
+                    ApplyImpulse(neighborRigidBody, tangentImpulse, rb);
+
+                    //Correction
+                    var kSlop = 0.05f;
+                    var percent = 0.4f;
+                    var correction =
+                        (
+                            MathF.Max(manifold.Depths[0] - kSlop, 0f)
+                            / (_inverseMass + neighborRigidBody._inverseMass)
+                        )
+                        * manifold.Normal
+                        * percent;
+
+                    Entity.Position -= correction * _inverseMass;
+                    neighborRigidBody.Entity.Position +=
+                        correction * neighborRigidBody._inverseMass;
                 }
             }
+
+            IntegrateForce();
+            IntegrateVelocity();
         }
 
-        private void CalculateResponseVelocity(
-            ref Vector2 relativeVelocity,
-            in Vector2 minimumTranslationVector,
-            out Vector2 responseVelocity
-        )
+        void IntegrateForce()
         {
-            var inverseMTV = minimumTranslationVector * -1f;
-            Vector2.Normalize(ref inverseMTV, out Vector2 normal);
+            if (IsImmovable || _collider is null)
+            {
+                return;
+            }
 
-            // the velocity is decomposed along the normal of the collision and the plane of collision.
-            // The elasticity will affect the response along the normal (normalVelocityComponent) and the friction will affect
-            // the tangential component of the velocity (tangentialVelocityComponent)
-            Vector2.Dot(ref relativeVelocity, ref normal, out float n);
+            if (ShouldUseGravity)
+            {
+                LinearVelocity +=
+                    (_force * _inverseMass + PhysicsSystem.Gravity) * (Time.DeltaTime / 2);
+            }
+            else
+            {
+                LinearVelocity += (_force * _inverseMass) * (Time.DeltaTime / 2);
+            }
 
-            var normalVelocityComponent = normal * n;
-            var tangentialVelocityComponent = relativeVelocity - normalVelocityComponent;
-
-            if (n > 0.0f)
-                normalVelocityComponent = Vector2.Zero;
-
-            // if the squared magnitude of the tangential component is less than glue then we bump up the friction to the max
-            var coefficientOfFriction = _friction;
-            if (tangentialVelocityComponent.LengthSquared() < _glue)
-                coefficientOfFriction = 1.01f;
-
-            // elasticity affects the normal component of the velocity and friction affects the tangential component
-            responseVelocity =
-                -(1.0f + _elasticity) * normalVelocityComponent
-                - coefficientOfFriction * tangentialVelocityComponent;
+            AngularVelocity += _torque * _inverseInertia * (Time.DeltaTime / 2);
         }
 
-        private void ProcessCollision(RigidBody other, in Vector2 minimumTranslationVector)
+        void IntegrateVelocity()
         {
-            var relativeVelocity = Velocity - other.Velocity;
+            if (IsImmovable || _collider is null)
+            {
+                return;
+            }
 
-            CalculateResponseVelocity(
-                ref relativeVelocity,
-                in minimumTranslationVector,
-                out relativeVelocity
-            );
+            Entity.Position += LinearVelocity * Time.DeltaTime;
+            Entity.Rotation += AngularVelocity * Time.DeltaTime;
 
-            var totalInverseMass = _inverseMass + other._inverseMass;
-            var ourResponseFraction = _inverseMass / totalInverseMass;
-            var otherResponseFraction = other._inverseMass / totalInverseMass;
-
-            Velocity += relativeVelocity * ourResponseFraction;
-            other.Velocity -= relativeVelocity * otherResponseFraction;
+            IntegrateForce();
         }
 
-        private void ProcessOverlap(RigidBody other, in Vector2 minimumTranslationVector)
+        void ApplyImpulse(RigidBody body, in Vector2 impulse, in Vector2 contactVector)
+        {
+            body.LinearVelocity += impulse * body._inverseMass;
+            body.AngularVelocity += Vector2Ext.Cross(contactVector, impulse) * body._inverseInertia;
+        }
+
+        void ProcessOverlap(RigidBody other, in Vector2 minimumTranslationVector)
         {
             if (IsImmovable)
             {

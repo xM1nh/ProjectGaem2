@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.ECS.Components.Renderables;
 using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
@@ -12,6 +14,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         internal RectangleF RegisteredBounds;
         protected Vector2 _localOffset;
         protected bool _isRegistered;
+        protected bool _autoSizing;
 
         public Shape Shape { get; protected set; }
 
@@ -47,6 +50,8 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
             }
         }
 
+        public virtual Vector2 Origin { get; }
+
         public virtual void RegisterWithPhysicsSystem()
         {
             if (!_isRegistered && Enable)
@@ -72,8 +77,8 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
 
         public bool Collides(Collider other, Vector2 motion, out Manifold manifold)
         {
-            var oldPosition = Entity.Transform.Position;
-            Shape.Transform.Position = Entity.Transform.Position + motion;
+            var oldPosition = Entity.Position;
+            Shape.Transform.Position = Entity.Position + motion;
             var didCollide = Shape.Collides(other.Shape, out manifold);
             Shape.Transform.Position = oldPosition;
             return didCollide;
@@ -94,6 +99,42 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
 
         public override void OnAddedToEntity()
         {
+            if (_autoSizing)
+            {
+                var renderable = Entity.GetComponent<RenderableComponent>();
+
+                if (renderable is not null)
+                {
+                    var bounds = renderable.Bounds;
+
+                    var width = bounds.Width / Entity.Scale;
+                    var height = bounds.Height / Entity.Scale;
+
+                    if (this is CircleCollider circle)
+                    {
+                        circle.Radius = MathF.Max(width, height) * 0.5f;
+
+                        LocalOffset = bounds.Center - Entity.Position;
+                    }
+                    else
+                    {
+                        var box = this as BoxCollider;
+                        box.Width = width;
+                        box.Height = height;
+
+                        LocalOffset = bounds.Center - Entity.Position;
+                    }
+                }
+
+                Shape.SetTransform(AbsolutePosition, Entity.Rotation);
+                Shape.CalculateBounds();
+
+                if (_isRegistered)
+                {
+                    PhysicsSystem.UpdateCollider(this);
+                }
+            }
+
             if (Enable)
             {
                 RegisterWithPhysicsSystem();
@@ -109,6 +150,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         {
             _isDirty = true;
             Shape.SetTransform(AbsolutePosition, Entity.Rotation);
+
+            if (_isRegistered)
+            {
+                PhysicsSystem.UpdateCollider(this);
+            }
         }
     }
 }

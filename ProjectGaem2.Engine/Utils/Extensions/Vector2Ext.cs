@@ -38,12 +38,42 @@ namespace ProjectGaem2.Engine.Utils.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Transform(in Vector2 position, in Matrix2 matrix, out Vector2 result)
+        public static void Transform(ref Vector2 position, ref Matrix2 matrix, out Vector2 result)
         {
             var x = (position.X * matrix.M11) + (position.Y * matrix.M21) + matrix.M31;
             var y = (position.X * matrix.M12) + (position.Y * matrix.M22) + matrix.M32;
             result.X = x;
             result.Y = y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Perpendicular(in Vector2 first, in Vector2 second)
+        {
+            return new Vector2(-1f * (second.Y - first.Y), second.X - first.X);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Perpendicular(in Vector2 original)
+        {
+            return new Vector2(-original.Y, original.X);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Cross(in Vector2 a, in Vector2 b)
+        {
+            return a.X * b.Y - a.Y * b.X;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Cross(in float a, in Vector2 v)
+        {
+            return new(-a * v.Y, a * v.X);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2 Cross(in Vector2 v, in float a)
+        {
+            return new(a * v.Y, -a * v.X);
         }
     }
 }

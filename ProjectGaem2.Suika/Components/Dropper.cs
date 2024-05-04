@@ -6,6 +6,7 @@ using ProjectGaem2.Engine.ECS.Components.Physics;
 using ProjectGaem2.Engine.ECS.Components.Renderables;
 using ProjectGaem2.Engine.Input.Virtual;
 using ProjectGaem2.Engine.Physics.Shapes.Collisions;
+using ProjectGaem2.Engine.Utils;
 
 namespace ProjectGaem2.Suika.Components
 {
@@ -22,6 +23,11 @@ namespace ProjectGaem2.Suika.Components
             _texture = texture;
         }
 
+        public void FixedUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override void OnAddedToEntity()
         {
             _mover = Entity.AddComponent(new Mover());
@@ -34,7 +40,7 @@ namespace ProjectGaem2.Suika.Components
             _down.AddKeyboardKey(Keys.Down);
         }
 
-        public void Update(GameTime gameTime)
+        public void Update()
         {
             var v = Vector2.Zero;
 
@@ -47,7 +53,7 @@ namespace ProjectGaem2.Suika.Components
                 v.Y += 1;
             }
 
-            var movement = v * 100 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var movement = v * 100 * Time.DeltaTime;
 
             _mover.CalculateMovement(ref movement, out Manifold manifold);
             _mover.ApplyMovement(movement);

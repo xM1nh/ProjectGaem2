@@ -1,7 +1,10 @@
-﻿namespace ProjectGaem2.Engine.ECS.Components
+﻿using System;
+
+namespace ProjectGaem2.Engine.ECS.Components
 {
-    public class Component
+    public class Component : IComparable<Component>
     {
+        public Guid Id = Guid.NewGuid();
         private bool _enable = true;
         public Entity Entity { get; set; }
         public bool Enable
@@ -30,5 +33,9 @@
         public virtual void OnRemovedFromEntity() { }
 
         public virtual void OnEntityTransformChanged() { }
+
+        public virtual void DebugDraw() { }
+
+        public int CompareTo(Component other) => Id.CompareTo(other.Id);
     }
 }

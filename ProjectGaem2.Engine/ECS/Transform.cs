@@ -12,10 +12,10 @@ namespace ProjectGaem2.Engine.ECS
 
         private Vector2 _position;
         private float _rotation;
-        private Vector2 _scale = Vector2.One;
+        private float _scale = 1;
         private Vector2 _localPosition;
         private float _localRotation;
-        private Vector2 _localScale = Vector2.One;
+        private float _localScale = 1;
 
         private bool _dirty;
         private bool _localDirty;
@@ -45,7 +45,7 @@ namespace ProjectGaem2.Engine.ECS
                 _parent?._children.Remove(this);
                 value._children.Add(this);
                 _parent = value;
-                SetDirty();
+                OnChanged();
             }
         }
         public Entity Entity { get; set; } = entity;
@@ -64,7 +64,11 @@ namespace ProjectGaem2.Engine.ECS
                     else
                     {
                         Parent.UpdateTransform();
-                        Vector2Ext.Transform(_localPosition, Parent._worldTransform, out _position);
+                        Vector2Ext.Transform(
+                            ref _localPosition,
+                            ref Parent._worldTransform,
+                            out _position
+                        );
                     }
 
                     _positionDirty = false;
@@ -102,7 +106,7 @@ namespace ProjectGaem2.Engine.ECS
                     _localRotationDirty =
                     _localScaleDirty =
                         true;
-                SetDirty();
+                OnChanged();
             }
         }
         public float Rotation
@@ -141,10 +145,10 @@ namespace ProjectGaem2.Engine.ECS
                     _localRotationDirty =
                     _localScaleDirty =
                         true;
-                SetDirty();
+                OnChanged();
             }
         }
-        public Vector2 Scale
+        public float Scale
         {
             get
             {
@@ -164,7 +168,7 @@ namespace ProjectGaem2.Engine.ECS
                 }
             }
         }
-        public Vector2 LocalScale
+        public float LocalScale
         {
             get
             {
@@ -175,7 +179,7 @@ namespace ProjectGaem2.Engine.ECS
             {
                 _localScale = value;
                 _localDirty = _positionDirty = _localScaleDirty = true;
-                SetDirty();
+                OnChanged();
             }
         }
 
@@ -237,7 +241,7 @@ namespace ProjectGaem2.Engine.ECS
 
                     if (_localScaleDirty)
                     {
-                        Matrix2.CreateScale(_localScale.X, _localScale.Y, out _scaleMatrix);
+                        Matrix2.CreateScale(_localScale, out _scaleMatrix);
                         _localScaleDirty = false;
                     }
 
@@ -248,14 +252,14 @@ namespace ProjectGaem2.Engine.ECS
                         out _localTransform
                     );
 
-                    if (Parent == null)
+                    if (Parent is null)
                     {
                         _worldTransform = _localTransform;
                         _rotation = _localRotation;
                         _scale = _localScale;
                     }
 
-                    if (Parent != null)
+                    if (Parent is not null)
                     {
                         Matrix2.Multiply(
                             ref _localTransform,
@@ -274,12 +278,12 @@ namespace ProjectGaem2.Engine.ECS
             }
         }
 
-        void SetDirty()
+        void OnChanged()
         {
             Entity.OnTransformChanged();
             for (var i = 0; i < _children.Count; i++)
             {
-                _children[i].SetDirty();
+                _children[i].OnChanged();
             }
         }
 

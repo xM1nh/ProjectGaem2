@@ -8,24 +8,21 @@ namespace ProjectGaem2.Engine.Physics.Shapes
     {
         public RectangleF Bounds;
         public PhysicsInternalTransform Transform;
+
         public abstract void CalculateBounds();
 
-        public void SetTransform(Vector2 position, float rotation = 0)
+        public Shape()
         {
-            Transform.Position = position;
-
-            if (rotation != 0)
-            {
-                Transform.Rotation.Set(rotation);
-            }
+            Transform = PhysicsInternalTransform.Identity;
         }
+
+        public virtual void SetTransform(Vector2 position, float rotation = 0) { }
 
         public void ResetTransform() => Transform.SetIdentity();
 
         public bool Collides(Shape other, out Manifold manifold) =>
-            Collision.Collides(this, Transform, other, other.Transform, out manifold);
+            Collision.Collides(this, other, out manifold);
 
-        public bool Overlaps(Shape other) =>
-            Collision.Overlaps(this, Transform, other, other.Transform);
+        public bool Overlaps(Shape other) => Collision.Overlaps(this, other);
     }
 }

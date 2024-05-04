@@ -4,13 +4,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
 {
     public static partial class Collision
     {
-        public static bool Collides(
-            Shape first,
-            in PhysicsInternalTransform firstT,
-            Shape second,
-            in PhysicsInternalTransform secondT,
-            out Manifold manifold
-        )
+        public static bool Collides(Shape first, Shape second, out Manifold manifold)
         {
             manifold = new Manifold();
 
@@ -34,17 +28,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Capsule2D:
                             return CircleToCapsule2DManifold(
                                 (Circle)first,
-                                firstT,
                                 (Capsule2D)second,
-                                secondT,
                                 out manifold
                             );
                         case Polygon:
                             return CircleToPolygonManifold(
                                 (Circle)first,
-                                firstT,
                                 (Polygon)second,
-                                secondT,
                                 out manifold
                             );
                         default:
@@ -66,17 +56,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Capsule2D:
                             return Box2DToCapsule2DManifold(
                                 (Box2D)first,
-                                firstT,
                                 (Capsule2D)second,
-                                secondT,
                                 out manifold
                             );
                         case Polygon:
                             return Box2DToPolygonManifold(
                                 (Box2D)first,
-                                firstT,
                                 (Polygon)second,
-                                secondT,
                                 out manifold
                             );
                         default:
@@ -88,9 +74,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Circle:
                             var result = CircleToCapsule2DManifold(
                                 (Circle)second,
-                                firstT,
                                 (Capsule2D)first,
-                                secondT,
                                 out manifold
                             );
                             manifold.Invert();
@@ -98,17 +82,13 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Capsule2D:
                             return Capsule2DToCapsule2DManifold(
                                 (Capsule2D)first,
-                                firstT,
                                 (Capsule2D)second,
-                                secondT,
                                 out manifold
                             );
                         case Box2D:
                             var result2 = Box2DToCapsule2DManifold(
                                 (Box2D)second,
-                                secondT,
                                 (Capsule2D)first,
-                                firstT,
                                 out manifold
                             );
                             manifold.Invert();
@@ -116,9 +96,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Polygon:
                             return Capsule2DToPolygonManifold(
                                 (Capsule2D)first,
-                                firstT,
                                 (Polygon)second,
-                                secondT,
                                 out manifold
                             );
                         default:
@@ -130,9 +108,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Circle:
                             var result = CircleToPolygonManifold(
                                 (Circle)second,
-                                secondT,
                                 (Polygon)first,
-                                firstT,
                                 out manifold
                             );
                             manifold.Invert();
@@ -140,9 +116,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Box2D:
                             var result2 = Box2DToPolygonManifold(
                                 (Box2D)second,
-                                secondT,
                                 (Polygon)first,
-                                firstT,
                                 out manifold
                             );
                             manifold.Invert();
@@ -150,9 +124,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Capsule2D:
                             var result3 = Capsule2DToPolygonManifold(
                                 (Capsule2D)second,
-                                secondT,
                                 (Polygon)first,
-                                firstT,
                                 out manifold
                             );
                             manifold.Invert();
@@ -160,9 +132,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         case Polygon:
                             return PolygonToPolygonManifold(
                                 (Polygon)first,
-                                firstT,
                                 (Polygon)second,
-                                secondT,
                                 out manifold
                             );
                         default:
@@ -173,12 +143,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
             }
         }
 
-        public static bool Overlaps(
-            Shape first,
-            in PhysicsInternalTransform firstT,
-            Shape second,
-            in PhysicsInternalTransform secondT
-        )
+        public static bool Overlaps(Shape first, Shape second)
         {
             return first switch
             {
@@ -188,7 +153,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                         Circle => CircleToCircle((Circle)first, (Circle)second),
                         Box2D => CircleToBox2D((Circle)first, (Box2D)second),
                         Capsule2D => CircleToCapsule2D((Circle)first, (Capsule2D)second),
-                        Polygon => CircleToPolygon((Circle)first, firstT, (Polygon)second, secondT),
+                        Polygon => CircleToPolygon((Circle)first, (Polygon)second),
                         _ => throw new NotSupportedException(),
                     },
                 Box2D
@@ -196,46 +161,26 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                     {
                         Circle => CircleToBox2D((Circle)second, (Box2D)first),
                         Box2D => Box2DToBox2D((Box2D)first, (Box2D)second),
-                        Capsule2D
-                            => Box2DToCapsule2D((Box2D)first, firstT, (Capsule2D)second, secondT),
-                        Polygon => Box2DToPolygon((Box2D)first, firstT, (Polygon)second, secondT),
+                        Capsule2D => Box2DToCapsule2D((Box2D)first, (Capsule2D)second),
+                        Polygon => Box2DToPolygon((Box2D)first, (Polygon)second),
                         _ => throw new NotSupportedException(),
                     },
                 Capsule2D
                     => second switch
                     {
                         Circle => CircleToCapsule2D((Circle)second, (Capsule2D)first),
-                        Box2D => Box2DToCapsule2D((Box2D)second, secondT, (Capsule2D)first, firstT),
-                        Capsule2D
-                            => Capsule2DToCapsule2D(
-                                (Capsule2D)first,
-                                firstT,
-                                (Capsule2D)second,
-                                secondT
-                            ),
-                        Polygon
-                            => Capsule2DToPolygon(
-                                (Capsule2D)first,
-                                firstT,
-                                (Polygon)second,
-                                secondT
-                            ),
+                        Box2D => Box2DToCapsule2D((Box2D)second, (Capsule2D)first),
+                        Capsule2D => Capsule2DToCapsule2D((Capsule2D)first, (Capsule2D)second),
+                        Polygon => Capsule2DToPolygon((Capsule2D)first, (Polygon)second),
                         _ => throw new NotSupportedException(),
                     },
                 Polygon
                     => second switch
                     {
-                        Circle => CircleToPolygon((Circle)second, secondT, (Polygon)first, firstT),
-                        Box2D => Box2DToPolygon((Box2D)second, secondT, (Polygon)first, firstT),
-                        Capsule2D
-                            => Capsule2DToPolygon(
-                                (Capsule2D)second,
-                                secondT,
-                                (Polygon)first,
-                                firstT
-                            ),
-                        Polygon
-                            => PolygonToPolygon((Polygon)first, firstT, (Polygon)second, secondT),
+                        Circle => CircleToPolygon((Circle)second, (Polygon)first),
+                        Box2D => Box2DToPolygon((Box2D)second, (Polygon)first),
+                        Capsule2D => Capsule2DToPolygon((Capsule2D)second, (Polygon)first),
+                        Polygon => PolygonToPolygon((Polygon)first, (Polygon)second),
                         _ => throw new NotSupportedException()
                     },
                 _ => throw new NotSupportedException()

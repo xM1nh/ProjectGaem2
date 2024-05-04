@@ -1,10 +1,13 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace ProjectGaem2.Engine.ECS.Components.Renderables
+﻿namespace ProjectGaem2.Engine.ECS.Components.Renderables
 {
     public class SpriteAnimator : SpriteRenderer, IUpdatable
     {
-        public void Update(GameTime gameTime)
+        public void FixedUpdate()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Update()
         {
             throw new System.NotImplementedException();
         }
