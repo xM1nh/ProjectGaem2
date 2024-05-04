@@ -11,15 +11,14 @@ namespace ProjectGaem2.Suika.Entities
     {
         public Orange(Texture2D texture)
         {
-            Position = new Vector2(400, 400);
+            Position = new Vector2(450, 400);
 
             AddComponent(new SpriteRenderer(texture));
 
             var rigidBody = new RigidBody
             {
-                LinearVelocity = new Vector2(0, -1),
-                ShouldUseGravity = false,
-                Mass = 0
+                LinearVelocity = new Vector2(0, -5),
+                ShouldUseGravity = false
             };
             AddComponent(rigidBody);
 

@@ -11,6 +11,10 @@ namespace ProjectGaem2.Engine
         protected GraphicsDeviceManager _graphics;
         protected SpriteBatch _spriteBatch;
 
+        private float previousT = 0;
+        private float accumulator = 0.0f;
+        private float maxFrameTime = 250;
+
         public Core()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -39,8 +43,34 @@ namespace ProjectGaem2.Engine
             Time.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
             InputListener.Update(gameTime);
 
+            if (previousT == 0)
+            {
+                previousT = (float)gameTime.TotalGameTime.TotalMilliseconds;
+            }
+
+            float now = (float)gameTime.TotalGameTime.TotalMilliseconds;
+            float frameTime = now - previousT;
+            if (frameTime > maxFrameTime)
+            {
+                frameTime = maxFrameTime;
+            }
+
+            previousT = now;
+
+            accumulator += frameTime;
+
+            while (accumulator >= Time.FixedDeltaTime)
+            {
+                FixedUpdate();
+                accumulator -= Time.FixedDeltaTime;
+            }
+
+            Time.Alpha = accumulator / Time.FixedDeltaTime;
+
             base.Update(gameTime);
         }
+
+        protected virtual void FixedUpdate() { }
 
         protected override void Draw(GameTime gameTime)
         {

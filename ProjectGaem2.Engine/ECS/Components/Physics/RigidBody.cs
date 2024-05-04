@@ -12,12 +12,18 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
     {
         private Collider _collider;
 
+        //For linear interpolation
+        private Vector2 _currentPosition;
+        private Vector2 _prevPosition;
+        private float _currentAngle;
+        private float _prevAngle;
+
         private float _mass = 10f;
         private float _inverseMass;
         private float _inertia;
         private float _inverseInertia;
         private float _restitution = 0.5f;
-        private float _staticFriction = 0.5f;
+        private float _staticFriction = 0.3f;
         private float _dynamicFriction = 0.2f;
         private Vector2 _force = Vector2.Zero;
         private float _torque = 0f;
@@ -105,9 +111,24 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                         break;
                 }
             }
+
+            _currentPosition = Entity.Position;
+            _currentAngle = Entity.Rotation;
         }
 
-        public void Update() { }
+        public void Update()
+        {
+            if (IsImmovable || _collider is null)
+            {
+                LinearVelocity = Vector2.Zero;
+                AngularVelocity = 0;
+
+                return;
+            }
+
+            Entity.Position = Vector2.Lerp(_prevPosition, _currentPosition, Time.Alpha);
+            Entity.Rotation = float.Lerp(_prevAngle, _currentAngle, Time.Alpha);
+        }
 
         public void FixedUpdate()
         {
@@ -205,7 +226,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     jt /= invMassSum;
                     jt /= manifold.Count;
 
-                    if (jt < 0.005f)
+                    if (MathF.Abs(jt) < 0.0005f)
                     {
                         continue;
                     }
@@ -253,15 +274,14 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
             if (ShouldUseGravity)
             {
-                LinearVelocity +=
-                    (_force * _inverseMass + PhysicsSystem.Gravity) * (Time.DeltaTime / 2);
+                LinearVelocity += (_force * _inverseMass + PhysicsSystem.Gravity) * 0.5f;
             }
             else
             {
-                LinearVelocity += (_force * _inverseMass) * (Time.DeltaTime / 2);
+                LinearVelocity += (_force * _inverseMass) * 0.5f;
             }
 
-            AngularVelocity += _torque * _inverseInertia * (Time.DeltaTime / 2);
+            AngularVelocity += _torque * _inverseInertia * 0.5f;
         }
 
         void IntegrateVelocity()
@@ -271,8 +291,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                 return;
             }
 
-            Entity.Position += LinearVelocity * Time.DeltaTime;
-            Entity.Rotation += AngularVelocity * Time.DeltaTime;
+            _prevPosition = _currentPosition;
+            _prevAngle = _currentAngle;
+
+            _currentPosition += LinearVelocity;
+            _currentAngle += AngularVelocity;
 
             IntegrateForce();
         }

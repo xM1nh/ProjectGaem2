@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine;
-using ProjectGaem2.Engine.Utils;
 using ProjectGaem2.Suika.Entities;
 
 namespace ProjectGaem2.Suika
@@ -13,10 +11,6 @@ namespace ProjectGaem2.Suika
         private Texture2D _orangeTexture;
         private Apple _apple;
         private Orange _orange;
-
-        private float previousT = 0;
-        private float accumulator = 0.0f;
-        private float maxFrameTime = 250;
 
         public Game1()
             : base() { }
@@ -41,31 +35,14 @@ namespace ProjectGaem2.Suika
         {
             base.Update(gameTime);
 
-            if (previousT == 0)
-            {
-                previousT = (float)gameTime.TotalGameTime.TotalMilliseconds;
-            }
-
-            float now = (float)gameTime.TotalGameTime.TotalMilliseconds;
-            float frameTime = now - previousT;
-            if (frameTime > maxFrameTime)
-            {
-                frameTime = maxFrameTime;
-            }
-
-            previousT = now;
-
-            accumulator += frameTime;
-
-            while (accumulator >= Time.FixedDeltaTime)
-            {
-                _apple.FixedUpdate();
-                _orange.FixedUpdate();
-                accumulator -= Time.FixedDeltaTime;
-            }
-
             _apple.Update();
             _orange.Update();
+        }
+
+        protected override void FixedUpdate()
+        {
+            _apple.FixedUpdate();
+            _orange.FixedUpdate();
         }
 
         protected override void Draw(GameTime gameTime)
