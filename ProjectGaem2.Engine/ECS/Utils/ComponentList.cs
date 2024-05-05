@@ -43,7 +43,7 @@ namespace ProjectGaem2.Engine.ECS.Utils
         }
 
         public void GetComponents<T>(List<T> components)
-            where T : Component
+            where T : class
         {
             for (var i = 0; i < _components.Count; i++)
             {
@@ -60,7 +60,7 @@ namespace ProjectGaem2.Engine.ECS.Utils
         }
 
         public List<T> GetComponents<T>()
-            where T : Component
+            where T : class
         {
             var components = new List<T>();
             GetComponents(components);

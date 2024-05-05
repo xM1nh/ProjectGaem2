@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ProjectGaem2.Engine.ECS;
 using ProjectGaem2.Engine.Input;
 using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Utils;
@@ -10,6 +11,7 @@ namespace ProjectGaem2.Engine
     {
         protected GraphicsDeviceManager _graphics;
         protected SpriteBatch _spriteBatch;
+        protected SceneManager _sceneManager = new();
 
         private float previousT = 0;
         private float accumulator = 0.0f;
@@ -67,17 +69,24 @@ namespace ProjectGaem2.Engine
 
             Time.Alpha = accumulator / Time.FixedDeltaTime;
 
+            _sceneManager.Update();
+
             base.Update(gameTime);
         }
 
-        protected virtual void FixedUpdate() { }
+        protected virtual void FixedUpdate()
+        {
+            _sceneManager.FixedUpdate();
+        }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            _spriteBatch.Begin();
+            _sceneManager.Draw(_spriteBatch);
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

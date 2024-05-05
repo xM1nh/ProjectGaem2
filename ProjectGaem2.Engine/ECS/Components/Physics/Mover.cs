@@ -7,12 +7,19 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 {
     public class Mover : Component
     {
+        TriggerHandler _triggerHandler;
+
+        public override void OnAddedToEntity()
+        {
+            _triggerHandler = new TriggerHandler(Entity);
+        }
+
         public bool CalculateMovement(ref Vector2 motion, out Manifold manifold)
         {
             manifold = new Manifold();
 
             // no collider? just move and forget about it
-            if (Entity.GetComponent<Collider>() == null)
+            if (Entity.GetComponent<Collider>() is null || _triggerHandler is null)
                 return false;
 
             // 1. move all non-trigger Colliders and get closest collision
@@ -20,6 +27,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
             for (var i = 0; i < colliders.Count; i++)
             {
                 var collider = colliders[i];
+
+                if (collider.IsTrigger)
+                {
+                    continue;
+                }
 
                 // fetch anything that we might collide with at our new position
                 var bounds = collider.Bounds;
@@ -29,6 +41,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
                 foreach (var neighbor in neighbors)
                 {
+                    if (neighbor.IsTrigger)
+                    {
+                        continue;
+                    }
+
                     if (collider.Collides(neighbor, motion, out Manifold _InternalManifold))
                     {
                         // hit. back off our motion
@@ -47,6 +64,8 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
         public void ApplyMovement(Vector2 motion)
         {
             Entity.Transform.Position += motion;
+
+            _triggerHandler.Update();
         }
 
         public bool Move(Vector2 motion, out Manifold manifold)

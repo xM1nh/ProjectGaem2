@@ -23,16 +23,54 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
         private float _inertia;
         private float _inverseInertia;
         private float _restitution = 0.5f;
-        private float _staticFriction = 0.3f;
-        private float _dynamicFriction = 0.2f;
+        private float _staticFriction = 0.5f;
+        private float _dynamicFriction = 0.3f;
         private Vector2 _force = Vector2.Zero;
         private float _torque = 0f;
 
-        public bool ShouldUseGravity = true;
-        public bool IsImmovable => _mass == 0;
+        private Vector2 _linearVelocity = Vector2.Zero;
+        private float _angularVelocity = 0f;
+        private float _maxLinearVelocity = 100;
+        private float _maxAngularVelocity = 7;
 
-        public Vector2 LinearVelocity;
-        public float AngularVelocity;
+        public bool ShouldUseGravity = true;
+        public bool Static
+        {
+            get => _mass == 0;
+            set
+            {
+                if (value)
+                {
+                    _inertia = 0;
+                    _inverseInertia = 0;
+                    _mass = 0;
+                    _inverseMass = 0;
+                }
+            }
+        }
+
+        public Vector2 LinearVelocity
+        {
+            get => _linearVelocity;
+            set
+            {
+                var x = MathHelper.Clamp(value.X, -_maxLinearVelocity, _maxLinearVelocity);
+                var y = MathHelper.Clamp(value.Y, -_maxLinearVelocity, _maxLinearVelocity);
+                _linearVelocity = new Vector2(x, y);
+            }
+        }
+        public float AngularVelocity
+        {
+            get => _angularVelocity;
+            set
+            {
+                _angularVelocity = MathHelper.Clamp(
+                    value,
+                    -_maxAngularVelocity,
+                    _maxAngularVelocity
+                );
+            }
+        }
 
         public float Mass
         {
@@ -98,7 +136,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
         {
             _collider = Entity.GetComponent<Collider>();
 
-            if (_collider is not null)
+            if (!Static || _collider is not null)
             {
                 switch (_collider)
                 {
@@ -118,7 +156,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
         public void Update()
         {
-            if (IsImmovable || _collider is null)
+            if (Static || _collider is null)
             {
                 LinearVelocity = Vector2.Zero;
                 AngularVelocity = 0;
@@ -126,19 +164,21 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                 return;
             }
 
-            Entity.Position = Vector2.Lerp(_prevPosition, _currentPosition, Time.Alpha);
-            Entity.Rotation = float.Lerp(_prevAngle, _currentAngle, Time.Alpha);
+            Entity.Position = Vector2.LerpPrecise(_prevPosition, _currentPosition, Time.Alpha);
+            Entity.Rotation = MathHelper.LerpPrecise(_prevAngle, _currentAngle, Time.Alpha);
         }
 
         public void FixedUpdate()
         {
-            if (IsImmovable || _collider is null)
+            if (Static || _collider is null)
             {
                 LinearVelocity = Vector2.Zero;
                 AngularVelocity = 0;
 
                 return;
             }
+
+            IntegrateForce();
 
             var neighbors = PhysicsSystem.CollisionBroadphaseExcludingSelf(_collider);
 
@@ -226,7 +266,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     jt /= invMassSum;
                     jt /= manifold.Count;
 
-                    if (MathF.Abs(jt) < 0.0005f)
+                    if (Equals(jt, 0))
                     {
                         continue;
                     }
@@ -261,13 +301,12 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                 }
             }
 
-            IntegrateForce();
             IntegrateVelocity();
         }
 
         void IntegrateForce()
         {
-            if (IsImmovable || _collider is null)
+            if (Static || _collider is null)
             {
                 return;
             }
@@ -286,7 +325,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
         void IntegrateVelocity()
         {
-            if (IsImmovable || _collider is null)
+            if (Static || _collider is null)
             {
                 return;
             }
@@ -302,17 +341,17 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
         void ApplyImpulse(RigidBody body, in Vector2 impulse, in Vector2 contactVector)
         {
-            body.LinearVelocity += impulse * body._inverseMass;
-            body.AngularVelocity += Vector2Ext.Cross(contactVector, impulse) * body._inverseInertia;
+            LinearVelocity += impulse * body._inverseMass;
+            AngularVelocity += Vector2Ext.Cross(contactVector, impulse) * body._inverseInertia;
         }
 
         void ProcessOverlap(RigidBody other, in Vector2 minimumTranslationVector)
         {
-            if (IsImmovable)
+            if (Static)
             {
                 other.Entity.Transform.Position += minimumTranslationVector;
             }
-            else if (other.IsImmovable)
+            else if (other.Static)
             {
                 Entity.Transform.Position -= minimumTranslationVector;
             }

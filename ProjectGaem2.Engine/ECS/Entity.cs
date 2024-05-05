@@ -14,6 +14,8 @@ namespace ProjectGaem2.Engine.ECS
         private static uint _idGenerator;
         public readonly uint Id;
         public string Name;
+        public Scene Scene;
+
         public Transform Transform { get; set; }
         public ComponentList Components { get; }
 
@@ -113,10 +115,13 @@ namespace ProjectGaem2.Engine.ECS
         }
 
         public T GetComponent<T>()
-            where T : Component => Components.Get<T>();
+            where T : class => Components.Get<T>();
 
         public List<T> GetComponents<T>()
-            where T : Component => Components.GetComponents<T>();
+            where T : class => Components.GetComponents<T>();
+
+        public void GetComponents<T>(List<T> components)
+            where T : class => Components.GetComponents(components);
 
         public virtual void Update()
         {

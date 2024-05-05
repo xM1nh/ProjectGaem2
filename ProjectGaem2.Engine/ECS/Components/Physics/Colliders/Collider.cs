@@ -15,6 +15,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         protected Vector2 _localOffset;
         protected bool _isRegistered;
         protected bool _autoSizing;
+        public bool IsTrigger;
 
         public Shape Shape { get; protected set; }
 
@@ -114,7 +115,10 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
                     {
                         circle.Radius = MathF.Max(width, height) * 0.5f;
 
-                        LocalOffset = bounds.Center - Entity.Position;
+                        LocalOffset = new Vector2(
+                            bounds.Left - Entity.Position.X,
+                            bounds.Top - Entity.Position.Y
+                        );
                     }
                     else
                     {
@@ -122,7 +126,10 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
                         box.Width = width;
                         box.Height = height;
 
-                        LocalOffset = bounds.Center - Entity.Position;
+                        LocalOffset = new Vector2(
+                            bounds.Left - Entity.Position.X,
+                            bounds.Top - Entity.Position.Y
+                        );
                     }
                 }
 

@@ -9,7 +9,7 @@ namespace ProjectGaem2.Engine.Physics
     {
         static SpatialHash _spatialHash;
         public static int SpatialHashCellSize { get; set; } = 100;
-        public static Vector2 Gravity { get; set; } = new(0, 9.81f);
+        public static Vector2 Gravity { get; set; } = new(0, 1f);
 
         public static void Reset()
         {
