@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS;
+using ProjectGaem2.Engine.Graphics;
 using ProjectGaem2.Engine.Input;
 using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Utils;
@@ -12,6 +13,7 @@ namespace ProjectGaem2.Engine
         protected GraphicsDeviceManager _graphics;
         protected SpriteBatch _spriteBatch;
         protected SceneManager _sceneManager = new();
+        protected PrimitiveBatch _primitiveBatch;
 
         private float previousT = 0;
         private float accumulator = 0.0f;
@@ -27,6 +29,10 @@ namespace ProjectGaem2.Engine
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            _graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            _graphics.ApplyChanges();
+
+            Screen.Initialize(_graphics);
             PhysicsSystem.Reset();
 
             base.Initialize();
@@ -35,6 +41,7 @@ namespace ProjectGaem2.Engine
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _primitiveBatch = new PrimitiveBatch(GraphicsDevice, Content);
 
             // TODO: use this.Content to load your game content here;
         }
@@ -81,12 +88,17 @@ namespace ProjectGaem2.Engine
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
             _sceneManager.Draw(_spriteBatch);
             _spriteBatch.End();
+
+            _primitiveBatch.Begin();
+            _sceneManager.DebugDraw(_primitiveBatch);
+            _primitiveBatch.End();
+
             base.Draw(gameTime);
         }
     }

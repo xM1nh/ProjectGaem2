@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using ProjectGaem2.Engine.Graphics;
 
 namespace ProjectGaem2.Engine.ECS.Utils
 {
@@ -14,6 +10,10 @@ namespace ProjectGaem2.Engine.ECS.Utils
         List<Entity> _entities = [];
         HashSet<Entity> _entitiesToAdd = [];
         HashSet<Entity> _entitiesToRemove = [];
+
+        public int Count => _entities.Count;
+
+        public Entity this[int index] => _entities[index];
 
         public T Get<T>()
             where T : class
@@ -92,6 +92,15 @@ namespace ProjectGaem2.Engine.ECS.Utils
             for (int i = 0; i < _entities.Count; i++)
             {
                 _entities[i].Draw(spriteBatch);
+            }
+        }
+
+        public void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            HandleUpdate();
+            for (int i = 0; i < _entities.Count; i++)
+            {
+                _entities[i].DebugDraw(primitiveBatch);
             }
         }
     }

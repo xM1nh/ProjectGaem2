@@ -199,20 +199,12 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     var ra = manifold.ContactPoints[0] - _collider.Origin;
                     var rb = manifold.ContactPoints[0] - neighborRigidBody._collider.Origin;
 
-                    if (neighborRigidBody is not null)
-                    {
-                        ProcessOverlap(neighborRigidBody, manifold.MinimumTranslationVector);
-                        relativeVelocity =
-                            (
-                                neighborRigidBody.LinearVelocity
-                                + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
-                            ) - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
-                    }
-                    else
-                    {
-                        Entity.Transform.Position -= manifold.MinimumTranslationVector;
-                        relativeVelocity = LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra);
-                    }
+                    ProcessOverlap(neighborRigidBody, manifold.Depths[0] * manifold.Normal);
+                    relativeVelocity =
+                        (
+                            neighborRigidBody.LinearVelocity
+                            + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                        ) - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
 
                     Vector2.Dot(
                         ref relativeVelocity,
@@ -242,17 +234,10 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     ApplyImpulse(neighborRigidBody, impulse, rb);
 
                     //Tangential Impulse
-                    if (neighborRigidBody is not null)
-                    {
-                        relativeVelocity =
-                            neighborRigidBody.LinearVelocity
-                            + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
-                            - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
-                    }
-                    else
-                    {
-                        relativeVelocity = LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra);
-                    }
+                    relativeVelocity =
+                        neighborRigidBody.LinearVelocity
+                        + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                        - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
 
                     var sf = MathF.Sqrt(_staticFriction * neighborRigidBody._staticFriction);
                     var df = MathF.Sqrt(_dynamicFriction * neighborRigidBody._dynamicFriction);
@@ -260,7 +245,15 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     var tangent =
                         relativeVelocity
                         - Vector2.Dot(relativeVelocity, manifold.Normal) * manifold.Normal;
-                    tangent.Normalize();
+
+                    if (Vector2Ext.Equal(tangent, Vector2.Zero))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        tangent.Normalize();
+                    }
 
                     var jt = -Vector2.Dot(relativeVelocity, tangent);
                     jt /= invMassSum;

@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using ProjectGaem2.Engine.Graphics;
 using ProjectGaem2.Engine.Physics;
 using ProjectGaem2.Engine.Physics.Shapes;
 
@@ -38,6 +38,16 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         {
             _autoSizing = true;
             Shape = new Circle(radius);
+        }
+
+        public override void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            primitiveBatch.DrawRectangle(
+                Bounds.Location,
+                new Vector2(Radius * 2, Radius * 2),
+                Color.Transparent,
+                Color.White
+            );
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.ECS.Components.Renderables;
+using ProjectGaem2.Engine.Graphics;
 
 namespace ProjectGaem2.Engine.ECS.Utils
 {
@@ -15,6 +16,10 @@ namespace ProjectGaem2.Engine.ECS.Utils
         List<IUpdatable> _updatableComponents = [];
         List<IRenderable> _renderableComponents = [];
         List<Component> _buffer = [];
+
+        public int Count => _components.Count;
+
+        public Component this[int index] => _components[index];
 
         public T Get<T>()
             where T : class
@@ -157,7 +162,16 @@ namespace ProjectGaem2.Engine.ECS.Utils
             }
         }
 
-        internal void OnEntityTransformChanged()
+        public void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            HandleUpdate();
+            for (int i = 0; i < _components.Count; i++)
+            {
+                _components[i].DebugDraw(primitiveBatch);
+            }
+        }
+
+        public void OnEntityTransformChanged()
         {
             for (var i = 0; i < _components.Count; i++)
             {

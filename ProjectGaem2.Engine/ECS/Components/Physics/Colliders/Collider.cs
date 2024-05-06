@@ -115,10 +115,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
                     {
                         circle.Radius = MathF.Max(width, height) * 0.5f;
 
-                        LocalOffset = new Vector2(
-                            bounds.Left - Entity.Position.X,
-                            bounds.Top - Entity.Position.Y
-                        );
+                        LocalOffset = bounds.Center - Entity.Position;
                     }
                     else
                     {
@@ -126,20 +123,17 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
                         box.Width = width;
                         box.Height = height;
 
-                        LocalOffset = new Vector2(
-                            bounds.Left - Entity.Position.X,
-                            bounds.Top - Entity.Position.Y
-                        );
+                        LocalOffset = bounds.Center - Entity.Position;
                     }
                 }
+            }
 
-                Shape.SetTransform(AbsolutePosition, Entity.Rotation);
-                Shape.CalculateBounds();
+            Shape.SetTransform(Entity.Position, Entity.Rotation);
+            Shape.CalculateBounds();
 
-                if (_isRegistered)
-                {
-                    PhysicsSystem.UpdateCollider(this);
-                }
+            if (_isRegistered)
+            {
+                PhysicsSystem.UpdateCollider(this);
             }
 
             if (Enable)
@@ -156,7 +150,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         public override void OnEntityTransformChanged()
         {
             _isDirty = true;
-            Shape.SetTransform(AbsolutePosition, Entity.Rotation);
+            Shape.SetTransform(Entity.Position, Entity.Rotation);
 
             if (_isRegistered)
             {

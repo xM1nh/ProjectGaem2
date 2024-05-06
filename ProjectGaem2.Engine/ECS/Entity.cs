@@ -5,11 +5,12 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS.Components;
 using ProjectGaem2.Engine.ECS.Utils;
+using ProjectGaem2.Engine.Graphics;
 using ProjectGaem2.Engine.Utils.Math;
 
 namespace ProjectGaem2.Engine.ECS
 {
-    public abstract class Entity : IComparable<Entity>
+    public class Entity : IComparable<Entity>
     {
         private static uint _idGenerator;
         public readonly uint Id;
@@ -123,6 +124,27 @@ namespace ProjectGaem2.Engine.ECS
         public void GetComponents<T>(List<T> components)
             where T : class => Components.GetComponents(components);
 
+        public bool RemoveComponent<T>()
+            where T : Component
+        {
+            var comp = GetComponent<T>();
+            if (comp != null)
+            {
+                RemoveComponent(comp);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void RemoveComponent(Component component) => Components.Remove(component);
+
+        public void RemoveAllComponents()
+        {
+            for (var i = 0; i < Components.Count; i++)
+                RemoveComponent(Components[i]);
+        }
+
         public virtual void Update()
         {
             Components.Update();
@@ -136,6 +158,11 @@ namespace ProjectGaem2.Engine.ECS
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             Components.Draw(spriteBatch);
+        }
+
+        public void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            Components.DebugDraw(primitiveBatch);
         }
 
         internal void OnTransformChanged()

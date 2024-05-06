@@ -1,4 +1,5 @@
 ﻿using System;
+using ProjectGaem2.Engine.Graphics;
 
 namespace ProjectGaem2.Engine.ECS.Components
 {
@@ -34,7 +35,7 @@ namespace ProjectGaem2.Engine.ECS.Components
 
         public virtual void OnEntityTransformChanged() { }
 
-        public virtual void DebugDraw() { }
+        public virtual void DebugDraw(PrimitiveBatch primitiveBatch) { }
 
         public int CompareTo(Component other) => Id.CompareTo(other.Id);
     }

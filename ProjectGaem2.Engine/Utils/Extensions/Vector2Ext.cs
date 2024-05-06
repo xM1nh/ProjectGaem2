@@ -75,5 +75,11 @@ namespace ProjectGaem2.Engine.Utils.Extensions
         {
             return new(a * v.Y, -a * v.X);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Equal(in Vector2 u, in Vector2 v)
+        {
+            return Vector2.DistanceSquared(u, v) < 0.0005f * 0.0005f;
+        }
     }
 }

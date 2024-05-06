@@ -1,22 +1,36 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectGaem2.Engine.ECS.Utils;
+using ProjectGaem2.Engine.Graphics;
 
 namespace ProjectGaem2.Engine.ECS
 {
     public class Scene
     {
         public EntityList Entities { get; }
-        protected ContentManager _content;
+        public ContentManager Content;
 
         public Scene(ContentManager content)
         {
-            _content = content;
+            Content = content;
             Entities = new(this);
         }
 
         public T GetEntity<T>()
             where T : class => Entities.Get<T>();
+
+        public Entity CreateEntity(string name)
+        {
+            var entity = new Entity(name);
+            return AddEntity(entity);
+        }
+
+        public Entity CreateEntity(string name, Vector2 position)
+        {
+            var entity = new Entity(name) { Position = position };
+            return AddEntity(entity);
+        }
 
         public T AddEntity<T>(T entity)
             where T : Entity
@@ -40,6 +54,8 @@ namespace ProjectGaem2.Engine.ECS
             entity.Scene = null;
         }
 
+        public virtual void Initialize() { }
+
         public virtual void Update()
         {
             Entities.Update();
@@ -53,6 +69,11 @@ namespace ProjectGaem2.Engine.ECS
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             Entities.Draw(spriteBatch);
+        }
+
+        public virtual void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            Entities.DebugDraw(primitiveBatch);
         }
     }
 }

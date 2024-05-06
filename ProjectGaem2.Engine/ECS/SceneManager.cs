@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using ProjectGaem2.Engine.Graphics;
 
 namespace ProjectGaem2.Engine.ECS
 {
@@ -11,12 +12,11 @@ namespace ProjectGaem2.Engine.ECS
 
         public void Add(string sceneName, Scene scene)
         {
-            if (_scenes.Count == 0)
-            {
-                _activeScene = scene;
-            }
-
             _scenes.Add(sceneName, scene);
+            if (_scenes.Count == 1)
+            {
+                SwitchScene(sceneName);
+            }
         }
 
         public void SwitchScene(string sceneName)
@@ -24,6 +24,7 @@ namespace ProjectGaem2.Engine.ECS
             if (_activeScene is null)
             {
                 _activeScene = _scenes[sceneName];
+                _activeScene.Initialize();
             }
             else
             {
@@ -37,6 +38,7 @@ namespace ProjectGaem2.Engine.ECS
             {
                 _activeScene = _nextScene;
                 _nextScene = null;
+                _activeScene.Initialize();
             }
             _activeScene.Update();
         }
@@ -47,6 +49,7 @@ namespace ProjectGaem2.Engine.ECS
             {
                 _activeScene = _nextScene;
                 _nextScene = null;
+                _activeScene.Initialize();
             }
             _activeScene.FixedUpdate();
         }
@@ -54,6 +57,11 @@ namespace ProjectGaem2.Engine.ECS
         public void Draw(SpriteBatch spriteBatch)
         {
             _activeScene.Draw(spriteBatch);
+        }
+
+        public void DebugDraw(PrimitiveBatch primitiveBatch)
+        {
+            _activeScene.DebugDraw(primitiveBatch);
         }
     }
 }

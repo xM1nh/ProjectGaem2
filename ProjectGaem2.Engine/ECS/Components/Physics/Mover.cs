@@ -49,7 +49,7 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     if (collider.Collides(neighbor, motion, out Manifold _InternalManifold))
                     {
                         // hit. back off our motion
-                        motion -= _InternalManifold.MinimumTranslationVector;
+                        motion -= _InternalManifold.Depths[0] * _InternalManifold.Normal;
 
                         // If we hit multiple objects, only take on the first for simplicity sake.
                         if (_InternalManifold.Count != 0)
@@ -63,9 +63,9 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
         public void ApplyMovement(Vector2 motion)
         {
-            Entity.Transform.Position += motion;
+            Entity.Position += motion;
 
-            _triggerHandler.Update();
+            _triggerHandler?.Update();
         }
 
         public bool Move(Vector2 motion, out Manifold manifold)

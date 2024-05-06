@@ -41,8 +41,7 @@ namespace ProjectGaem2.Engine.Physics.Shapes
 
         public override void SetTransform(Vector2 position, float rotation = 0)
         {
-            Center.X = position.X + Radius;
-            Center.Y = position.Y + Radius;
+            Center = position;
         }
     }
 }
