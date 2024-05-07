@@ -21,9 +21,9 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         public event Action Collided;
         public event Action Overlaped;
 
-        private Timer _collisionEventDebounceTimer;
-        private readonly object _collisionEventTimerLock = new();
-        private int _collisionEventDueTime = 40;
+        //private Timer _collisionEventDebounceTimer;
+        //private readonly object _collisionEventTimerLock = new();
+        //private int _collisionEventDueTime = 50;
 
         public Shape Shape { get; protected set; }
 
@@ -63,12 +63,12 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
 
         public Collider()
         {
-            _collisionEventDebounceTimer = new Timer(
-                OnCollisionDebounceTimerElapsed,
-                null,
-                Timeout.Infinite,
-                Timeout.Infinite
-            );
+            //_collisionEventDebounceTimer = new Timer(
+            //    OnCollisionDebounceTimerElapsed,
+            //    null,
+            //    Timeout.Infinite,
+            //    Timeout.Infinite
+            //);
         }
 
         public virtual void RegisterWithPhysicsSystem()
@@ -96,11 +96,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
             var didCollide = Shape.Collides(other.Shape, out manifold);
             if (didCollide)
             {
-                lock (_collisionEventTimerLock)
-                {
-                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
-                }
-                //Collided?.Invoke();
+                //lock (_collisionEventTimerLock)
+                //{
+                //    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                //}
+                Collided?.Invoke();
             }
 
             return didCollide;
@@ -114,11 +114,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
             var didCollide = Shape.Collides(other.Shape, out manifold);
             if (didCollide)
             {
-                lock (_collisionEventTimerLock)
-                {
-                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
-                }
-                //Collided?.Invoke();
+                //lock (_collisionEventTimerLock)
+                //{
+                //    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                //}
+                Collided?.Invoke();
             }
 
             Shape.Transform.Position = oldPosition;
@@ -130,11 +130,11 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
             var didOverlap = Shape.Overlaps(other.Shape);
             if (didOverlap)
             {
-                lock (_collisionEventTimerLock)
-                {
-                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
-                }
-                //Overlaped?.Invoke();
+                //lock (_collisionEventTimerLock)
+                //{
+                //    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                //}
+                Overlaped?.Invoke();
             }
 
             return didOverlap;

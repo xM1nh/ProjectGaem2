@@ -222,6 +222,8 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     else
                     {
                         Entity.Position -= manifold.Depths[0] * manifold.Normal;
+                        _prevPosition = _currentPosition;
+                        _currentPosition = Entity.Position;
 
                         oim = 0;
                         oii = 0;
@@ -384,15 +386,24 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
             if (Static)
             {
                 other.Entity.Position += minimumTranslationVector;
+                other._prevPosition = other._currentPosition;
+                other._currentPosition = other.Entity.Position;
             }
             else if (other.Static)
             {
                 Entity.Position -= minimumTranslationVector;
+                _prevPosition = _currentPosition;
+                _currentPosition = Entity.Position;
             }
             else
             {
                 Entity.Position -= minimumTranslationVector * 0.5f;
+                _prevPosition = _currentPosition;
+                _currentPosition = Entity.Position;
+
                 other.Entity.Position += minimumTranslationVector * 0.5f;
+                other._prevPosition = other._currentPosition;
+                other._currentPosition = other.Entity.Position;
             }
         }
 
