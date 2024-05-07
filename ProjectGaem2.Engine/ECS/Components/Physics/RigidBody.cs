@@ -193,18 +193,46 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                 {
                     var neighborRigidBody = neighbor.Entity.GetComponent<RigidBody>();
 
+                    var ra = manifold.ContactPoints[0] - _collider.Origin;
+                    var rb = manifold.ContactPoints[0] - neighbor.Origin;
+
+                    float oim;
+                    float oii;
+                    float odf;
+                    float osf;
+                    float e;
                     Vector2 relativeVelocity;
 
-                    var e = MathF.Min(Restitution, neighborRigidBody.Restitution);
-                    var ra = manifold.ContactPoints[0] - _collider.Origin;
-                    var rb = manifold.ContactPoints[0] - neighborRigidBody._collider.Origin;
+                    if (neighborRigidBody is not null)
+                    {
+                        ProcessOverlap(neighborRigidBody, manifold.Depths[0] * manifold.Normal);
 
-                    ProcessOverlap(neighborRigidBody, manifold.Depths[0] * manifold.Normal);
-                    relativeVelocity =
-                        (
-                            neighborRigidBody.LinearVelocity
-                            + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
-                        ) - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
+                        oim = neighborRigidBody._inverseMass;
+                        oii = neighborRigidBody._inverseInertia;
+                        odf = neighborRigidBody._dynamicFriction;
+                        osf = neighborRigidBody._staticFriction;
+                        e = MathF.Min(Restitution, neighborRigidBody.Restitution);
+
+                        relativeVelocity =
+                            (
+                                neighborRigidBody.LinearVelocity
+                                + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                            ) - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
+                    }
+                    else
+                    {
+                        Entity.Position -= manifold.Depths[0] * manifold.Normal;
+
+                        oim = 0;
+                        oii = 0;
+                        odf = 0;
+                        osf = 0;
+                        e = Restitution;
+
+                        relativeVelocity = -(
+                            LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra)
+                        );
+                    }
 
                     Vector2.Dot(
                         ref relativeVelocity,
@@ -221,9 +249,9 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     var rbCrossN = Vector2Ext.Cross(rb, manifold.Normal);
                     var invMassSum =
                         _inverseMass
-                        + neighborRigidBody._inverseMass
+                        + oim
                         + raCrossN * raCrossN * _inverseInertia
-                        + rbCrossN * rbCrossN * neighborRigidBody._inverseInertia;
+                        + rbCrossN * rbCrossN * oii;
 
                     var j = -(1.0f + e) * contactVelocityMag;
                     j /= invMassSum;
@@ -234,13 +262,22 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     ApplyImpulse(neighborRigidBody, impulse, rb);
 
                     //Tangential Impulse
-                    relativeVelocity =
-                        neighborRigidBody.LinearVelocity
-                        + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
-                        - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
+                    if (neighborRigidBody is not null)
+                    {
+                        relativeVelocity =
+                            neighborRigidBody.LinearVelocity
+                            + Vector2Ext.Cross(neighborRigidBody.AngularVelocity, rb)
+                            - (LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra));
+                    }
+                    else
+                    {
+                        relativeVelocity = -(
+                            LinearVelocity + Vector2Ext.Cross(AngularVelocity, ra)
+                        );
+                    }
 
-                    var sf = MathF.Sqrt(_staticFriction * neighborRigidBody._staticFriction);
-                    var df = MathF.Sqrt(_dynamicFriction * neighborRigidBody._dynamicFriction);
+                    var sf = MathF.Sqrt(_staticFriction * osf);
+                    var df = MathF.Sqrt(_dynamicFriction * odf);
 
                     var tangent =
                         relativeVelocity
@@ -281,20 +318,21 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
                     var kSlop = 0.05f;
                     var percent = 0.4f;
                     var correction =
-                        (
-                            MathF.Max(manifold.Depths[0] - kSlop, 0f)
-                            / (_inverseMass + neighborRigidBody._inverseMass)
-                        )
+                        (MathF.Max(manifold.Depths[0] - kSlop, 0f) / (_inverseMass + oim))
                         * manifold.Normal
                         * percent;
 
                     Entity.Position -= correction * _inverseMass;
-                    neighborRigidBody.Entity.Position +=
-                        correction * neighborRigidBody._inverseMass;
+                    if (neighborRigidBody is not null && !neighborRigidBody.Static)
+                        neighborRigidBody.Entity.Position +=
+                            correction * neighborRigidBody._inverseMass;
                 }
             }
 
             IntegrateVelocity();
+
+            _force = Vector2.Zero;
+            _torque = 0;
         }
 
         void IntegrateForce()
@@ -334,24 +372,43 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics
 
         void ApplyImpulse(RigidBody body, in Vector2 impulse, in Vector2 contactVector)
         {
-            LinearVelocity += impulse * body._inverseMass;
-            AngularVelocity += Vector2Ext.Cross(contactVector, impulse) * body._inverseInertia;
+            if (body is not null)
+            {
+                LinearVelocity += impulse * body._inverseMass;
+                AngularVelocity += Vector2Ext.Cross(contactVector, impulse) * body._inverseInertia;
+            }
         }
 
         void ProcessOverlap(RigidBody other, in Vector2 minimumTranslationVector)
         {
             if (Static)
             {
-                other.Entity.Transform.Position += minimumTranslationVector;
+                other.Entity.Position += minimumTranslationVector;
             }
             else if (other.Static)
             {
-                Entity.Transform.Position -= minimumTranslationVector;
+                Entity.Position -= minimumTranslationVector;
             }
             else
             {
-                Entity.Transform.Position -= minimumTranslationVector * 0.5f;
-                other.Entity.Transform.Position += minimumTranslationVector * 0.5f;
+                Entity.Position -= minimumTranslationVector * 0.5f;
+                other.Entity.Position += minimumTranslationVector * 0.5f;
+            }
+        }
+
+        public void AddForce(Vector2 force)
+        {
+            if (!Static)
+            {
+                _force = force;
+            }
+        }
+
+        public void AddTorque(float torque)
+        {
+            if (!Static)
+            {
+                _torque = torque;
             }
         }
     }

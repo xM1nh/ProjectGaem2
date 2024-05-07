@@ -67,6 +67,12 @@
 /processorParam:TextureFormat=Color
 /build:Computer.png
 
+#begin hit(1).wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:hit(1).wav
+
 #begin Player.png
 /importer:TextureImporter
 /processor:TextureProcessor

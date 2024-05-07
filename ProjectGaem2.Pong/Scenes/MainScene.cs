@@ -14,20 +14,8 @@ namespace ProjectGaem2.Pong.Scenes
     {
         public override void Initialize()
         {
-            var ballTexture = Content.Load<Texture2D>("Ball");
             var ballEntity = CreateEntity("ball", Screen.Center);
-            ballEntity.AddComponent(new SpriteRenderer(ballTexture));
-            ballEntity.AddComponent<CircleCollider>();
-            ballEntity.AddComponent(
-                new RigidBody()
-                {
-                    ShouldUseGravity = false,
-                    LinearVelocity = new Vector2(5, 3),
-                    Restitution = 1,
-                    StaticFriction = 0,
-                    DynamicFriction = 0,
-                }
-            );
+            ballEntity.AddComponent(new Ball());
 
             var p1Texture = Content.Load<Texture2D>("Player");
             var p1Entity = CreateEntity(
@@ -37,15 +25,6 @@ namespace ProjectGaem2.Pong.Scenes
             p1Entity.AddComponent(new Paddle());
             p1Entity.AddComponent(new SpriteRenderer(p1Texture));
             p1Entity.AddComponent<BoxCollider>();
-            p1Entity.AddComponent(
-                new RigidBody()
-                {
-                    Static = true,
-                    Restitution = 1,
-                    StaticFriction = 0,
-                    DynamicFriction = 0
-                }
-            );
 
             var p2Texture = Content.Load<Texture2D>("Computer");
             var p2Entity = CreateEntity(
@@ -55,15 +34,6 @@ namespace ProjectGaem2.Pong.Scenes
             p2Entity.AddComponent(new EnemyPaddle());
             p2Entity.AddComponent(new SpriteRenderer(p2Texture));
             p2Entity.AddComponent<BoxCollider>();
-            p2Entity.AddComponent(
-                new RigidBody()
-                {
-                    Static = true,
-                    Restitution = 1,
-                    StaticFriction = 0,
-                    DynamicFriction = 0
-                }
-            );
 
             var ceilEntity = CreateEntity("ceil", new Vector2(Screen.Width / 2, 0));
             ceilEntity.AddComponent(new BoxCollider() { Width = Screen.Width });

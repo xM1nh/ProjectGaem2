@@ -29,12 +29,14 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         public override Vector2 Origin => ((Circle)Shape).Center;
 
         public CircleCollider()
+            : base()
         {
             _autoSizing = true;
             Shape = new Circle();
         }
 
         public CircleCollider(float radius)
+            : base()
         {
             _autoSizing = true;
             Shape = new Circle(radius);

@@ -9,6 +9,9 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
     {
         internal const int MaxGJKIterations = 20;
         internal const float Epsilon = 1.192092896e-7f;
+
+        internal const float LinearSlop = 0.005f;
+        internal const float PolygonRadius = 2.0f * LinearSlop;
     }
 
     internal struct GJKProxy
@@ -669,6 +672,164 @@ namespace ProjectGaem2.Engine.Physics.Shapes.Collisions
                     output.PointB -= rB * normal;
                 }
             }
+        }
+
+        public static bool RayCast(
+            Shape shapeA,
+            in PhysicsInternalTransform transformA,
+            Shape shapeB,
+            in PhysicsInternalTransform transformB,
+            in Vector2 translationB,
+            out RaycastManifold output
+        )
+        {
+            output = new RaycastManifold
+            {
+                Iterations = 0,
+                Lambda = 1.0f,
+                Normal = Vector2.Zero,
+                Point = Vector2.Zero
+            };
+
+            var shiftedTransformA = transformA;
+            shiftedTransformA.Position -= transformA.Position;
+            var shiftedTransformB = transformB;
+            shiftedTransformB.Position -= transformB.Position;
+
+            var proxyA = new GJKProxy();
+            var proxyB = new GJKProxy();
+            proxyA.Set(shapeA);
+            proxyB.Set(shapeB);
+
+            var radiusA = Math.Max(proxyA.Radius, Settings.PolygonRadius);
+            var radiusB = Math.Max(proxyB.Radius, Settings.PolygonRadius);
+            var radius = radiusA + radiusB;
+
+            var n = new Vector2(0.0f, 0.0f);
+            var lambda = 0.0f;
+
+            // Initial simplex
+            var simplex = new Simplex();
+
+            // Get simplex vertices as an array.
+            // ref var vertices = ref simplex.Vertices;
+
+            // Get support point in -r direction
+            var indexA = proxyA.GetSupport(GJKHelper.MulT(transformA.Rotation, -translationB));
+            var wA = GJKHelper.Mul(transformA, proxyA.GetVertex(indexA));
+            var indexB = proxyB.GetSupport(GJKHelper.MulT(transformB.Rotation, translationB));
+            var wB = GJKHelper.Mul(transformB, proxyB.GetVertex(indexB));
+            var v = wA - wB;
+
+            // Sigma is the target distance between polygons
+            var sigma = Math.Max(Settings.PolygonRadius, radius - Settings.PolygonRadius);
+            const float tolerance = 0.5f * Settings.LinearSlop;
+
+            // Main iteration loop.
+            const int maxIters = 20;
+            var iter = 0;
+            while (iter < maxIters && v.Length() - sigma > tolerance)
+            {
+                Debug.Assert(simplex.Count < 3);
+
+                output.Iterations += 1;
+
+                // Support in direction -v (A - B)
+                indexA = proxyA.GetSupport(GJKHelper.MulT(transformA.Rotation, -v));
+                wA = GJKHelper.Mul(transformA, proxyA.GetVertex(indexA));
+                indexB = proxyB.GetSupport(GJKHelper.MulT(transformB.Rotation, v));
+                wB = GJKHelper.Mul(transformB, proxyB.GetVertex(indexB));
+                var p = wA - wB;
+
+                // -v is a normal at p
+                v.Normalize();
+
+                // Intersect ray with plane
+                var vp = Vector2.Dot(v, p);
+                var vr = Vector2.Dot(v, translationB);
+                if (vp - sigma > lambda * vr)
+                {
+                    if (vr <= 0.0f)
+                    {
+                        return false;
+                    }
+
+                    lambda = (vp - sigma) / vr;
+                    if (lambda > 1.0f)
+                    {
+                        return false;
+                    }
+
+                    n = -v;
+                    simplex.Count = 0;
+                }
+
+                // Reverse simplex since it works with B - A.
+                // Shift by lambda * r because we want the closest point to the current clip point.
+                // Note that the support point p is not shifted because we want the plane equation
+                // to be formed in unshifted space.
+                ref var vertex = ref simplex.V[simplex.Count];
+                vertex.IndexA = indexB;
+                vertex.Wa = wB + lambda * translationB;
+                vertex.IndexB = indexA;
+                vertex.Wb = wA;
+                vertex.W = vertex.Wb - vertex.Wa;
+                vertex.A = 1.0f;
+
+                simplex.Count += 1;
+
+                switch (simplex.Count)
+                {
+                    case 1:
+                        break;
+
+                    case 2:
+                        simplex.Solve2();
+                        break;
+
+                    case 3:
+                        simplex.Solve3();
+                        break;
+
+                    default:
+                        Debug.Assert(false);
+                        break;
+                }
+
+                // If we have 3 points, then the origin is in the corresponding triangle.
+                if (simplex.Count == 3)
+                {
+                    // Overlap
+                    return false;
+                }
+
+                // Get search direction.
+                v = simplex.GetClosestPoint();
+
+                // Iteration count is equated to the number of support point calls.
+                ++iter;
+            }
+
+            if (iter == 0)
+            {
+                // Initial overlap
+                return false;
+            }
+
+            // Prepare output.
+            simplex.GetWitnessPoints(out _, out var pointA);
+
+            if (v.LengthSquared() > 0.0f)
+            {
+                n = -v;
+                n.Normalize();
+            }
+
+            output.Point = pointA + radiusA * n;
+            output.Normal = n;
+            output.Lambda = lambda;
+            output.Iterations = iter;
+            return true;
         }
     }
 }

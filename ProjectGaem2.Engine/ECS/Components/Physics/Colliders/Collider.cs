@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using ProjectGaem2.Engine.ECS.Components.Renderables;
 using ProjectGaem2.Engine.Physics;
@@ -16,6 +17,13 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         protected bool _isRegistered;
         protected bool _autoSizing;
         public bool IsTrigger;
+
+        public event Action Collided;
+        public event Action Overlaped;
+
+        private Timer _collisionEventDebounceTimer;
+        private readonly object _collisionEventTimerLock = new();
+        private int _collisionEventDueTime = 40;
 
         public Shape Shape { get; protected set; }
 
@@ -53,6 +61,16 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
 
         public virtual Vector2 Origin { get; }
 
+        public Collider()
+        {
+            _collisionEventDebounceTimer = new Timer(
+                OnCollisionDebounceTimerElapsed,
+                null,
+                Timeout.Infinite,
+                Timeout.Infinite
+            );
+        }
+
         public virtual void RegisterWithPhysicsSystem()
         {
             if (!_isRegistered && Enable)
@@ -73,19 +91,54 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
 
         public Vector2 AbsolutePosition => Entity.Position + _localOffset;
 
-        public bool Collides(Collider other, out Manifold manifold) =>
-            Shape.Collides(other.Shape, out manifold);
+        public bool Collides(Collider other, out Manifold manifold)
+        {
+            var didCollide = Shape.Collides(other.Shape, out manifold);
+            if (didCollide)
+            {
+                lock (_collisionEventTimerLock)
+                {
+                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                }
+                //Collided?.Invoke();
+            }
+
+            return didCollide;
+        }
 
         public bool Collides(Collider other, Vector2 motion, out Manifold manifold)
         {
             var oldPosition = Entity.Position;
             Shape.Transform.Position = Entity.Position + motion;
+
             var didCollide = Shape.Collides(other.Shape, out manifold);
+            if (didCollide)
+            {
+                lock (_collisionEventTimerLock)
+                {
+                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                }
+                //Collided?.Invoke();
+            }
+
             Shape.Transform.Position = oldPosition;
             return didCollide;
         }
 
-        public bool Overlaps(Collider other) => Shape.Overlaps(other.Shape);
+        public bool Overlaps(Collider other)
+        {
+            var didOverlap = Shape.Overlaps(other.Shape);
+            if (didOverlap)
+            {
+                lock (_collisionEventTimerLock)
+                {
+                    _collisionEventDebounceTimer.Change(_collisionEventDueTime, Timeout.Infinite);
+                }
+                //Overlaped?.Invoke();
+            }
+
+            return didOverlap;
+        }
 
         public override void OnEnable()
         {
@@ -156,6 +209,12 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
             {
                 PhysicsSystem.UpdateCollider(this);
             }
+        }
+
+        private void OnCollisionDebounceTimerElapsed(object state)
+        {
+            Collided?.Invoke();
+            Overlaped?.Invoke();
         }
     }
 }

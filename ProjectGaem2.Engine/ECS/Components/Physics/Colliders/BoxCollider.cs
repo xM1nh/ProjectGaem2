@@ -51,12 +51,14 @@ namespace ProjectGaem2.Engine.ECS.Components.Physics.Colliders
         public override Vector2 Origin => new(((Box2D)Shape).Width / 2, ((Box2D)Shape).Height / 2);
 
         public BoxCollider()
+            : base()
         {
             _autoSizing = true;
             Shape = new Box2D();
         }
 
         public BoxCollider(float width, float height)
+            : base()
         {
             _autoSizing = true;
             Shape = new Box2D(width, height);
